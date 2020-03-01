@@ -11,6 +11,9 @@ class KFunctionForCall<T>(private val function: KFunction<T>, instance: Any? = n
     fun getArgumentBucket(): ArgumentBucket = originalArgumentBucket.clone()
 
     init {
+        if (parameters.isEmpty() || (instance != null && parameters.size == 1))
+            throw IllegalArgumentException("This function is not require arguments.")
+
         // この関数には確実にアクセスするためアクセシビリティ書き換え
         function.isAccessible = true
         originalArgumentBucket = if (instance != null) {
