@@ -1,6 +1,6 @@
 package com.mapk.core
 
-class ArgumentBucket(
+class ArgumentBucket internal constructor(
     internal val bucket: Array<Any?>,
     private var initializeStatus: Int,
     private val initializeMask: List<Int>,
