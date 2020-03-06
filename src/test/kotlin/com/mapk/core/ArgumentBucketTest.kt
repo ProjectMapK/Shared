@@ -1,5 +1,6 @@
 package com.mapk.core
 
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -74,6 +75,32 @@ class ArgumentBucketTest {
             argumentBucket.setArgument(object {}, 1)
             argumentBucket.setArgument(object {}, 2)
             assertIterableEquals(emptyList<Any?>(), argumentBucket.notInitializedParameterIndexes)
+        }
+    }
+
+    @Nested
+    @DisplayName("引数セットのテスト")
+    inner class SetArgumentTest {
+        private lateinit var argumentBucket: ArgumentBucket
+
+        @BeforeEach
+        fun beforeEach() {
+            argumentBucket = KFunctionForCall(::singleArgFunction).getArgumentBucket()
+        }
+
+        @Test
+        @DisplayName("正常に追加した場合")
+        fun setNewArgument() {
+            argumentBucket.setArgument("argument", 0)
+            assertEquals("argument", argumentBucket.bucket[0])
+        }
+
+        @Test
+        @DisplayName("同じインデックスに2回追加した場合")
+        fun setArgumentTwice() {
+            argumentBucket.setArgument("first", 0)
+            argumentBucket.setArgument("second", 0)
+            assertEquals("first", argumentBucket.bucket[0])
         }
     }
 }
