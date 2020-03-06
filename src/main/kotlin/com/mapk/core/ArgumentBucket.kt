@@ -13,11 +13,13 @@ class ArgumentBucket internal constructor(
     }
 
     fun setArgument(argument: Any?, index: Int) {
+        val temp = initializationStatus or initializeMask[index]
+
         // 先に入ったものを優先するため、初期化済みなら何もしない
-        if (initializationStatus and initializeMask[index] != 0) return
+        if (initializationStatus == temp) return
 
         bucket[index] = argument
-        initializationStatus = initializationStatus or initializeMask[index]
+        initializationStatus = temp
     }
 
     public override fun clone(): ArgumentBucket {
