@@ -1,6 +1,7 @@
 package com.mapk.core
 
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -9,6 +10,12 @@ import org.junit.jupiter.api.Test
 
 private fun singleArgFunction(argument: Any?) {
     println(argument)
+}
+
+private fun multiArgFunction(arg1: Any?, arg2: Any?, arg3: Any?) {
+    println(arg1)
+    println(arg2)
+    println(arg3)
 }
 
 @DisplayName("ArgumentBucketTestのテスト")
@@ -34,6 +41,39 @@ class ArgumentBucketTest {
         fun isInitialized() {
             argumentBucket.setArgument(object {}, 0)
             assertTrue(argumentBucket.isInitialized)
+        }
+    }
+
+    @Nested
+    @DisplayName("初期化されていないインデックス取得のテスト")
+    inner class NotInitializedParameterIndexesTest {
+        private lateinit var argumentBucket: ArgumentBucket
+
+        @BeforeEach
+        fun beforeEach() {
+            argumentBucket = KFunctionForCall(::multiArgFunction).getArgumentBucket()
+        }
+
+        @Test
+        @DisplayName("何もセットしていない場合")
+        fun noArguments() {
+            assertIterableEquals(listOf(0, 1, 2), argumentBucket.notInitializedParameterIndexes)
+        }
+
+        @Test
+        @DisplayName("1つセットした場合")
+        fun singleArgument() {
+            argumentBucket.setArgument(object {}, 1)
+            assertIterableEquals(listOf(0, 2), argumentBucket.notInitializedParameterIndexes)
+        }
+
+        @Test
+        @DisplayName("全てセットした場合")
+        fun fullArguments() {
+            argumentBucket.setArgument(object {}, 0)
+            argumentBucket.setArgument(object {}, 1)
+            argumentBucket.setArgument(object {}, 2)
+            assertIterableEquals(emptyList<Any?>(), argumentBucket.notInitializedParameterIndexes)
         }
     }
 }
