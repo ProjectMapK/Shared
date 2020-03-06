@@ -9,11 +9,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-private fun singleArgFunction(argument: Any?) {
-    println(argument)
-}
-
-private fun multiArgFunction(arg1: Any?, arg2: Any?, arg3: Any?) {
+private fun sampleFunction(arg1: Any?, arg2: Any?, arg3: Any?) {
     println(arg1)
     println(arg2)
     println(arg3)
@@ -21,16 +17,16 @@ private fun multiArgFunction(arg1: Any?, arg2: Any?, arg3: Any?) {
 
 @DisplayName("ArgumentBucketTestのテスト")
 class ArgumentBucketTest {
+    private lateinit var argumentBucket: ArgumentBucket
+
+    @BeforeEach
+    fun beforeEach() {
+        argumentBucket = KFunctionForCall(::sampleFunction).getArgumentBucket()
+    }
+
     @Nested
     @DisplayName("初期化状態のチェックテスト")
     inner class IsInitializedTest {
-        private lateinit var argumentBucket: ArgumentBucket
-
-        @BeforeEach
-        fun beforeEach() {
-            argumentBucket = KFunctionForCall(::singleArgFunction).getArgumentBucket()
-        }
-
         @Test
         @DisplayName("初期化前")
         fun isNotInitialized() {
@@ -41,6 +37,8 @@ class ArgumentBucketTest {
         @DisplayName("初期化後")
         fun isInitialized() {
             argumentBucket.setArgument(object {}, 0)
+            argumentBucket.setArgument(object {}, 1)
+            argumentBucket.setArgument(object {}, 2)
             assertTrue(argumentBucket.isInitialized)
         }
     }
@@ -48,13 +46,6 @@ class ArgumentBucketTest {
     @Nested
     @DisplayName("初期化されていないインデックス取得のテスト")
     inner class NotInitializedParameterIndexesTest {
-        private lateinit var argumentBucket: ArgumentBucket
-
-        @BeforeEach
-        fun beforeEach() {
-            argumentBucket = KFunctionForCall(::multiArgFunction).getArgumentBucket()
-        }
-
         @Test
         @DisplayName("何もセットしていない場合")
         fun noArguments() {
@@ -81,13 +72,6 @@ class ArgumentBucketTest {
     @Nested
     @DisplayName("引数セットのテスト")
     inner class SetArgumentTest {
-        private lateinit var argumentBucket: ArgumentBucket
-
-        @BeforeEach
-        fun beforeEach() {
-            argumentBucket = KFunctionForCall(::singleArgFunction).getArgumentBucket()
-        }
-
         @Test
         @DisplayName("正常に追加した場合")
         fun setNewArgument() {
