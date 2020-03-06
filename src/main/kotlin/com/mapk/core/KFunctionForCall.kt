@@ -8,9 +8,10 @@ class KFunctionForCall<T>(private val function: KFunction<T>, instance: Any? = n
     val parameters: List<KParameter> = function.parameters
     private val originalArgumentBucket: ArgumentBucket
 
-    fun getArgumentBucket(): ArgumentBucket = originalArgumentBucket.clone()
-
     init {
+        if (parameters.isEmpty() || (instance != null && parameters.size == 1))
+            throw IllegalArgumentException("This function is not require arguments.")
+
         // この関数には確実にアクセスするためアクセシビリティ書き換え
         function.isAccessible = true
         originalArgumentBucket = if (instance != null) {
@@ -31,6 +32,8 @@ class KFunctionForCall<T>(private val function: KFunction<T>, instance: Any? = n
             )
         }
     }
+
+    fun getArgumentBucket(): ArgumentBucket = originalArgumentBucket.clone()
 
     fun call(argumentBucket: ArgumentBucket): T {
         return function.call(*argumentBucket.bucket)
