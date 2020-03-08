@@ -34,7 +34,7 @@ class KFunctionForCall<T>(private val function: KFunction<T>, instance: Any? = n
 
     fun getArgumentBucket(): ArgumentBucket = originalArgumentBucket.clone()
 
-    fun call(argumentBucket: ArgumentBucket): T {
-        return function.call(*argumentBucket.bucket)
-    }
+    fun call(argumentBucket: ArgumentBucket): T =
+        if (argumentBucket.isInitialized) function.call(*argumentBucket.bucket)
+        else function.callBy(argumentBucket.bucketMap)
 }
