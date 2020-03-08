@@ -14,22 +14,21 @@ class KFunctionForCall<T>(private val function: KFunction<T>, instance: Any? = n
 
         // この関数には確実にアクセスするためアクセシビリティ書き換え
         function.isAccessible = true
+
+        // 初期化処理の共通化のため先に初期化
+        val tempMap = HashMap<KParameter, Any?>(parameters.size, 1.0f)
+        val tempArray = Array<Any?>(parameters.size) { null }
+        val maskList = generateSequence(1) { it.shl(1) }.take(parameters.size).toList()
+
         originalArgumentBucket = if (instance != null) {
-            ArgumentBucket(
-                Array(parameters.size) { if (it == 0) instance else null },
-                1,
-                generateSequence(1) { it.shl(1) }
-                    .take(parameters.size)
-                    .toList()
-            )
+            // インスタンス有りでは先にインスタンスを初期化する
+            parameters.find { it.kind == KParameter.Kind.INSTANCE }?.run { tempMap[this] = instance }
+            tempArray[0] = instance
+
+            // 引数の1番目は初期化済みということでinitializationStatusは1スタート
+            ArgumentBucket(tempArray, tempMap, 1, maskList)
         } else {
-            ArgumentBucket(
-                Array(parameters.size) { null },
-                0,
-                generateSequence(1) { it.shl(1) }
-                    .take(parameters.size)
-                    .toList()
-            )
+            ArgumentBucket(tempArray, tempMap, 0, maskList)
         }
     }
 
