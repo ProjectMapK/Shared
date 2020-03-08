@@ -27,14 +27,13 @@ internal class BucketGenerator(capacity: Int, instancePair: Pair<KParameter, Any
 }
 
 class ArgumentBucket internal constructor(
+    private val keyArray: Array<KParameter?>,
+    internal val valueArray: Array<Any?>,
+    private var initializationStatus: Int,
     private val initializeMask: List<Int>,
     private val completionValue: Int
 ) : MutableMap<KParameter, Any?> {
-    private val keyArray: Array<KParameter?> = Array(capacity) { null }
-    private val valueArray: Array<Any?> = Array(capacity) { null }
-
     private var count: Int = 0
-    private var initializationStatus: Int = 0
 
     val isInitialized: Boolean get() = initializationStatus == completionValue
 
@@ -59,6 +58,9 @@ class ArgumentBucket internal constructor(
     }
 
     override fun get(key: KParameter): Any? = valueArray[key.index]
+    fun getByIndex(key: Int): Any? =
+        if (initializationStatus and initializeMask[key] != 0) valueArray[key]
+        else throw IllegalStateException("This argument is not initialized.")
 
     override fun isEmpty(): Boolean = count == 0
 
@@ -67,8 +69,7 @@ class ArgumentBucket internal constructor(
     override val keys: MutableSet<KParameter>
         get() = keyArray.filterNotNull().toMutableSet()
     override val values: MutableCollection<Any?>
-        get() = if (isInitialized) values.toMutableList()
-            else throw UnsupportedOperationException("Must be full initialize.")
+        get() = throw UnsupportedOperationException()
 
     override fun clear() {
         throw UnsupportedOperationException()
