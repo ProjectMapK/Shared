@@ -11,9 +11,6 @@ class ArgumentBucket internal constructor(
     private val completionValue: Int = initializeMask.reduce { l, r -> l or r }
 ) : Cloneable {
     val isInitialized: Boolean get() = initializationStatus == completionValue
-    val notInitializedParameterIndexes: List<Int> get() = initializeMask.indices.filter {
-        initializationStatus and initializeMask[it] == 0
-    }
 
     fun setArgument(kParameter: KParameter, argument: Any?) {
         val index = kParameter.index
