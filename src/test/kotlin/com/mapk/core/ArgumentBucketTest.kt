@@ -49,15 +49,18 @@ class ArgumentBucketTest {
         @Test
         @DisplayName("正常に追加した場合")
         fun setNewArgument() {
-            argumentBucket.setArgument("argument", 0)
+            val parameter = ::sampleFunction.parameters.first { it.index == 0 }
+            argumentBucket.setArgument(parameter, "argument")
             assertEquals("argument", argumentBucket.bucket[0])
         }
 
         @Test
         @DisplayName("同じインデックスに2回追加した場合")
         fun setArgumentTwice() {
-            argumentBucket.setArgument("first", 0)
-            argumentBucket.setArgument("second", 0)
+            val parameter = ::sampleFunction.parameters.first { it.index == 0 }
+
+            argumentBucket.setArgument(parameter, "first")
+            argumentBucket.setArgument(parameter, "second")
             assertEquals("first", argumentBucket.bucket[0])
         }
     }
