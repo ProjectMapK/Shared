@@ -25,7 +25,7 @@ class ArgumentBucket internal constructor(
     private var initializationStatus: Int,
     private val initializeMask: List<Int>,
     private val completionValue: Int
-) : Cloneable {
+) {
     val isInitialized: Boolean get() = initializationStatus == completionValue
 
     fun setArgument(kParameter: KParameter, argument: Any?) {
@@ -38,15 +38,5 @@ class ArgumentBucket internal constructor(
         bucketMap[kParameter] = argument
         bucket[index] = argument
         initializationStatus = temp
-    }
-
-    public override fun clone(): ArgumentBucket {
-        return ArgumentBucket(
-            bucket.copyOf(),
-            bucketMap.toMutableMap(),
-            initializationStatus,
-            initializeMask,
-            completionValue
-        )
     }
 }
