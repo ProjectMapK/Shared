@@ -48,7 +48,7 @@ class KFunctionForCallTest {
             val kFunctionForCall = KFunctionForCall(function, Companion)
 
             val bucket = kFunctionForCall.getArgumentBucket()
-            kFunctionForCall.parameters.forEach { bucket.setArgument(it, it.index) }
+            kFunctionForCall.parameters.forEach { bucket[it] = it.index }
             val result = kFunctionForCall.call(bucket)
             assertEquals("12", result)
         }
@@ -61,7 +61,7 @@ class KFunctionForCallTest {
             val kFunctionForCall = KFunctionForCall(::func)
             val argumentBucket = kFunctionForCall.getArgumentBucket()
 
-            ::func.parameters.forEach { if (!it.isOptional) argumentBucket.setArgument(it, it.name) }
+            ::func.parameters.forEach { if (!it.isOptional) argumentBucket[it] = it.name }
 
             val result = kFunctionForCall.call(argumentBucket)
             assertEquals("key" to "default", result)
