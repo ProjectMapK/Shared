@@ -1,5 +1,7 @@
 package com.mapk.core
 
+import kotlin.reflect.full.functions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -31,6 +33,30 @@ class KFunctionForCallTest {
         @DisplayName("正常入力")
         fun isValid() {
             assertDoesNotThrow { KFunctionForCall(this::dummy2) }
+        }
+    }
+
+    @Nested
+    @DisplayName("呼び出し関連テスト")
+    inner class CallTest {
+        @Test
+        @DisplayName("コンパニオンオブジェクトから取得した場合")
+        fun fromCompanionObject() {
+            val function =
+                Companion::class.functions.find { it.name == (KFunctionForCallTest)::declaredOnCompanionObject.name }!!
+
+            val kFunctionForCall = KFunctionForCall(function, Companion)
+
+            val bucket = kFunctionForCall.getArgumentBucket()
+            kFunctionForCall.parameters.forEach { bucket.setArgument(it, it.index) }
+            val result = kFunctionForCall.call(bucket)
+            assertEquals("12", result)
+        }
+    }
+
+    companion object {
+        fun declaredOnCompanionObject(arg1: Any, arg2: Any): String {
+            return arg1.toString() + arg2.toString()
         }
     }
 }
