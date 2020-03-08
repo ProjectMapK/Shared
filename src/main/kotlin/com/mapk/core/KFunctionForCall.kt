@@ -6,7 +6,7 @@ import kotlin.reflect.jvm.isAccessible
 
 class KFunctionForCall<T>(private val function: KFunction<T>, instance: Any? = null) {
     val parameters: List<KParameter> = function.parameters
-    private val originalArgumentBucket: ArgumentBucket
+    private val generator: BucketGenerator
 
     init {
         if (parameters.isEmpty() || (instance != null && parameters.size == 1))
@@ -20,19 +20,19 @@ class KFunctionForCall<T>(private val function: KFunction<T>, instance: Any? = n
         val tempArray = Array<Any?>(parameters.size) { null }
         val maskList = generateSequence(1) { it.shl(1) }.take(parameters.size).toList()
 
-        originalArgumentBucket = if (instance != null) {
+        generator = if (instance != null) {
             // インスタンス有りでは先にインスタンスを初期化する
             parameters.find { it.kind == KParameter.Kind.INSTANCE }?.run { tempMap[this] = instance }
             tempArray[0] = instance
 
             // 引数の1番目は初期化済みということでinitializationStatusは1スタート
-            ArgumentBucket(tempArray, tempMap, 1, maskList)
+            BucketGenerator(tempArray, tempMap, 1, maskList)
         } else {
-            ArgumentBucket(tempArray, tempMap, 0, maskList)
+            BucketGenerator(tempArray, tempMap, 0, maskList)
         }
     }
 
-    fun getArgumentBucket(): ArgumentBucket = originalArgumentBucket.clone()
+    fun getArgumentBucket(): ArgumentBucket = generator.generate()
 
     fun call(argumentBucket: ArgumentBucket): T =
         if (argumentBucket.isInitialized) function.call(*argumentBucket.bucket)
