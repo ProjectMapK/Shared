@@ -36,9 +36,10 @@ class ArgumentBucketTest {
         @Test
         @DisplayName("初期化後")
         fun isInitialized() {
-            argumentBucket.setArgument(object {}, 0)
-            argumentBucket.setArgument(object {}, 1)
-            argumentBucket.setArgument(object {}, 2)
+            ::sampleFunction.parameters.forEach {
+                argumentBucket.setArgument(it, object {})
+            }
+
             assertTrue(argumentBucket.isInitialized)
         }
     }
