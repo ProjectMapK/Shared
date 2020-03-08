@@ -52,6 +52,20 @@ class KFunctionForCallTest {
             val result = kFunctionForCall.call(bucket)
             assertEquals("12", result)
         }
+
+        private fun func(key: String, value: String = "default"): Pair<String, String> = key to value
+
+        @Test
+        @DisplayName("デフォルト値を用いる場合")
+        fun useDefaultValue() {
+            val kFunctionForCall = KFunctionForCall(::func)
+            val argumentBucket = kFunctionForCall.getArgumentBucket()
+
+            ::func.parameters.forEach { if (!it.isOptional) argumentBucket.setArgument(it, it.name) }
+
+            val result = kFunctionForCall.call(argumentBucket)
+            assertEquals("key" to "default", result)
+        }
     }
 
     companion object {
