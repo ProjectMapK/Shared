@@ -6,7 +6,7 @@ import kotlin.reflect.jvm.isAccessible
 
 class KFunctionForCall<T>(private val function: KFunction<T>, instance: Any? = null) {
     val parameters: List<KParameter> = function.parameters
-    private val originalArgumentBucket: ArgumentBucket
+    private val generator: BucketGenerator
 
     init {
         if (parameters.isEmpty() || (instance != null && parameters.size == 1))
@@ -14,28 +14,24 @@ class KFunctionForCall<T>(private val function: KFunction<T>, instance: Any? = n
 
         // この関数には確実にアクセスするためアクセシビリティ書き換え
         function.isAccessible = true
-        originalArgumentBucket = if (instance != null) {
-            ArgumentBucket(
-                Array(parameters.size) { if (it == 0) instance else null },
-                1,
-                generateSequence(1) { it.shl(1) }
-                    .take(parameters.size)
-                    .toList()
-            )
+
+        // 初期化処理の共通化のため先に初期化
+        val tempArray = Array<Any?>(parameters.size) { null }
+        val maskList = generateSequence(1) { it.shl(1) }.take(parameters.size).toList()
+
+        generator = if (instance != null) {
+            tempArray[0] = instance
+
+            // 引数の1番目は初期化済みということでinitializationStatusは1スタート
+            BucketGenerator(tempArray, parameters.first { it.kind == KParameter.Kind.INSTANCE } to instance, 1, maskList)
         } else {
-            ArgumentBucket(
-                Array(parameters.size) { null },
-                0,
-                generateSequence(1) { it.shl(1) }
-                    .take(parameters.size)
-                    .toList()
-            )
+            BucketGenerator(tempArray, null, 0, maskList)
         }
     }
 
-    fun getArgumentBucket(): ArgumentBucket = originalArgumentBucket.clone()
+    fun getArgumentBucket(): ArgumentBucket = generator.generate()
 
-    fun call(argumentBucket: ArgumentBucket): T {
-        return function.call(*argumentBucket.bucket)
-    }
+    fun call(argumentBucket: ArgumentBucket): T =
+        if (argumentBucket.isInitialized) function.call(*argumentBucket.bucket)
+        else function.callBy(argumentBucket.bucketMap)
 }
