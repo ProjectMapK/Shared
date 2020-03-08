@@ -2,7 +2,6 @@ package com.mapk.core
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -41,32 +40,6 @@ class ArgumentBucketTest {
             }
 
             assertTrue(argumentBucket.isInitialized)
-        }
-    }
-
-    @Nested
-    @DisplayName("初期化されていないインデックス取得のテスト")
-    inner class NotInitializedParameterIndexesTest {
-        @Test
-        @DisplayName("何もセットしていない場合")
-        fun noArguments() {
-            assertIterableEquals(listOf(0, 1, 2), argumentBucket.notInitializedParameterIndexes)
-        }
-
-        @Test
-        @DisplayName("1つセットした場合")
-        fun singleArgument() {
-            argumentBucket.setArgument(object {}, 1)
-            assertIterableEquals(listOf(0, 2), argumentBucket.notInitializedParameterIndexes)
-        }
-
-        @Test
-        @DisplayName("全てセットした場合")
-        fun fullArguments() {
-            argumentBucket.setArgument(object {}, 0)
-            argumentBucket.setArgument(object {}, 1)
-            argumentBucket.setArgument(object {}, 2)
-            assertIterableEquals(emptyList<Any?>(), argumentBucket.notInitializedParameterIndexes)
         }
     }
 
