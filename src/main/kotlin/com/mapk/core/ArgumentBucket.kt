@@ -2,13 +2,29 @@ package com.mapk.core
 
 import kotlin.reflect.KParameter
 
+internal class BucketGenerator(
+    private val bucket: Array<Any?>,
+    private val bucketMap: MutableMap<KParameter, Any?>,
+    private val initializationStatus: Int,
+    private val initializeMask: List<Int>
+) {
+    private val completionValue: Int = initializeMask.reduce { l, r -> l or r }
+
+    fun generate(): ArgumentBucket = ArgumentBucket(
+        bucket.copyOf(),
+        bucketMap.toMutableMap(),
+        initializationStatus,
+        initializeMask,
+        completionValue
+    )
+}
+
 class ArgumentBucket internal constructor(
     internal val bucket: Array<Any?>,
     internal val bucketMap: MutableMap<KParameter, Any?>,
     private var initializationStatus: Int,
     private val initializeMask: List<Int>,
-    // clone時の再計算を避けるため1回で済むようにデフォルト値化
-    private val completionValue: Int = initializeMask.reduce { l, r -> l or r }
+    private val completionValue: Int
 ) : Cloneable {
     val isInitialized: Boolean get() = initializationStatus == completionValue
 
