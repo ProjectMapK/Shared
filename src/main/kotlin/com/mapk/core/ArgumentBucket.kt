@@ -33,7 +33,8 @@ class ArgumentBucket internal constructor(
     private val initializeMask: List<Int>,
     private val completionValue: Int
 ) : MutableMap<KParameter, Any?> {
-    private var count: Int = 0
+    // インスタンス有りなら1、そうでなければ0スタート
+    private var count: Int = initializationStatus
 
     val isInitialized: Boolean get() = initializationStatus == completionValue
 
