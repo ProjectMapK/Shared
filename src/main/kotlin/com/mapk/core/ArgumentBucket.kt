@@ -68,7 +68,7 @@ class ArgumentBucket internal constructor(
     override val values: MutableCollection<Any?>
         get() = throw UnsupportedOperationException()
 
-    fun put(key: KParameter, value: Any?) {
+    fun putIfAbsent(key: KParameter, value: Any?) {
         val index = key.index
         val temp = initializationStatus or initializeMask[index]
 
