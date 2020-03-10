@@ -34,6 +34,8 @@ dependencies {
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.6.0") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
+    // https://mvnrepository.com/artifact/io.mockk/mockk
+    testImplementation("io.mockk:mockk:1.9.3")
 }
 
 tasks {
