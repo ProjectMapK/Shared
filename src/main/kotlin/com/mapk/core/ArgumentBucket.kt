@@ -32,7 +32,7 @@ class ArgumentBucket internal constructor(
     private var initializationStatus: Int,
     private val initializeMask: List<Int>,
     private val completionValue: Int
-) : MutableMap<KParameter, Any?> {
+) : Map<KParameter, Any?> {
     // インスタンス有りなら1、そうでなければ0スタート
     private var count: Int = initializationStatus
 
@@ -41,11 +41,7 @@ class ArgumentBucket internal constructor(
     class MutableEntry internal constructor(
         override val key: KParameter,
         override var value: Any?
-    ) : MutableMap.MutableEntry<KParameter, Any?> {
-        override fun setValue(newValue: Any?): Any? {
-            throw UnsupportedOperationException()
-        }
-    }
+    ) : Map.Entry<KParameter, Any?>
 
     override val size: Int get() = count
 
@@ -65,18 +61,14 @@ class ArgumentBucket internal constructor(
 
     override fun isEmpty(): Boolean = count == 0
 
-    override val entries: MutableSet<MutableMap.MutableEntry<KParameter, Any?>>
-        get() = keyArray.mapNotNull { it?.let { MutableEntry(it, valueArray[it.index]) } }.toMutableSet()
+    override val entries: Set<Map.Entry<KParameter, Any?>>
+        get() = keyArray.mapNotNull { it?.let { MutableEntry(it, valueArray[it.index]) } }.toSet()
     override val keys: MutableSet<KParameter>
         get() = keyArray.filterNotNull().toMutableSet()
     override val values: MutableCollection<Any?>
         get() = throw UnsupportedOperationException()
 
-    override fun clear() {
-        throw UnsupportedOperationException()
-    }
-
-    override fun put(key: KParameter, value: Any?) {
+    fun put(key: KParameter, value: Any?) {
         val index = key.index
         val temp = initializationStatus or initializeMask[index]
 
@@ -89,13 +81,5 @@ class ArgumentBucket internal constructor(
         valueArray[index] = value
 
         return
-    }
-
-    override fun putAll(from: Map<out KParameter, Any?>) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun remove(key: KParameter): Any? {
-        throw UnsupportedOperationException()
     }
 }
