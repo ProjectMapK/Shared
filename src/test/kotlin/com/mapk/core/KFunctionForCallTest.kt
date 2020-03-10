@@ -72,6 +72,28 @@ class KFunctionForCallTest {
             assertEquals("key" to "default", result)
             verify(exactly = 1) { func.callBy(any()) }
         }
+
+        @Test
+        @DisplayName("同一関数を違うソースから複数回呼んだ場合")
+        fun multipleCall() {
+            val function = Companion::class.functions
+                .first { it.name == (KFunctionForCallTest)::declaredOnCompanionObject.name }
+                .let { spyk(it) }
+
+            val kFunctionForCall = KFunctionForCall(function, Companion)
+
+            val bucket1 = kFunctionForCall.getArgumentBucket()
+            kFunctionForCall.parameters.forEach { bucket1.putIfAbsent(it, it.index) }
+            val result1 = kFunctionForCall.call(bucket1)
+            assertEquals("12", result1)
+
+            val bucket2 = kFunctionForCall.getArgumentBucket()
+            kFunctionForCall.parameters.forEach { bucket2.putIfAbsent(it, it.index + 1) }
+            val result2 = kFunctionForCall.call(bucket2)
+            assertEquals("23", result2)
+
+            verify(exactly = 2) { function.call(*anyVararg()) }
+        }
     }
 
     companion object {
