@@ -36,7 +36,7 @@ class ArgumentBucketTest {
         @DisplayName("初期化後")
         fun isInitialized() {
             ::sampleFunction.parameters.forEach {
-                argumentBucket[it] = object {}
+                argumentBucket.putIfAbsent(it, object {})
             }
 
             assertTrue(argumentBucket.isInitialized)
@@ -50,7 +50,7 @@ class ArgumentBucketTest {
         @DisplayName("正常に追加した場合")
         fun setNewArgument() {
             val parameter = ::sampleFunction.parameters.first { it.index == 0 }
-            argumentBucket[parameter] = "argument"
+            argumentBucket.putIfAbsent(parameter, "argument")
             assertEquals("argument", argumentBucket.getByIndex(0))
         }
 
@@ -59,8 +59,8 @@ class ArgumentBucketTest {
         fun setArgumentTwice() {
             val parameter = ::sampleFunction.parameters.first { it.index == 0 }
 
-            argumentBucket[parameter] = "first"
-            argumentBucket[parameter] = "second"
+            argumentBucket.putIfAbsent(parameter, "first")
+            argumentBucket.putIfAbsent(parameter, "second")
             assertEquals("first", argumentBucket.getByIndex(0))
         }
     }
