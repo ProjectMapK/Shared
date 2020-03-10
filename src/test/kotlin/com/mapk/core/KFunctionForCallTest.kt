@@ -1,5 +1,7 @@
 package com.mapk.core
 
+import io.mockk.spyk
+import io.mockk.verify
 import kotlin.reflect.full.functions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
@@ -42,8 +44,9 @@ class KFunctionForCallTest {
         @Test
         @DisplayName("コンパニオンオブジェクトから取得した場合")
         fun fromCompanionObject() {
-            val function =
-                Companion::class.functions.find { it.name == (KFunctionForCallTest)::declaredOnCompanionObject.name }!!
+            val function = Companion::class.functions
+                .first { it.name == (KFunctionForCallTest)::declaredOnCompanionObject.name }
+                .let { spyk(it) }
 
             val kFunctionForCall = KFunctionForCall(function, Companion)
 
@@ -51,6 +54,7 @@ class KFunctionForCallTest {
             kFunctionForCall.parameters.forEach { bucket.putIfAbsent(it, it.index) }
             val result = kFunctionForCall.call(bucket)
             assertEquals("12", result)
+            verify(exactly = 1) { function.call(*anyVararg()) }
         }
 
         private fun func(key: String, value: String = "default"): Pair<String, String> = key to value
@@ -58,13 +62,15 @@ class KFunctionForCallTest {
         @Test
         @DisplayName("デフォルト値を用いる場合")
         fun useDefaultValue() {
-            val kFunctionForCall = KFunctionForCall(::func)
+            val func = spyk(::func)
+            val kFunctionForCall = KFunctionForCall(func)
             val argumentBucket = kFunctionForCall.getArgumentBucket()
 
-            ::func.parameters.forEach { if (!it.isOptional) argumentBucket.putIfAbsent(it, it.name) }
+            func.parameters.forEach { if (!it.isOptional) argumentBucket.putIfAbsent(it, it.name) }
 
             val result = kFunctionForCall.call(argumentBucket)
             assertEquals("key" to "default", result)
+            verify(exactly = 1) { func.callBy(any()) }
         }
     }
 
