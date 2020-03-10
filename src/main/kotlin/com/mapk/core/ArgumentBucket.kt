@@ -2,30 +2,6 @@ package com.mapk.core
 
 import kotlin.reflect.KParameter
 
-internal class BucketGenerator(capacity: Int, instancePair: Pair<KParameter, Any?>?) {
-    private val initializationStatus: Int = if (instancePair == null) 0 else 1
-    private val initializeMask: List<Int> = generateSequence(1) { it.shl(1) }.take(capacity).toList()
-    private val completionValue: Int = initializeMask.reduce { l, r -> l or r }
-
-    private val keyArray: Array<KParameter?> = Array(capacity) { null }
-    private val valueArray: Array<Any?> = Array(capacity) { null }
-
-    init {
-        if (instancePair != null) {
-            keyArray[0] = instancePair.first
-            valueArray[0] = instancePair.second
-        }
-    }
-
-    fun generate(): ArgumentBucket = ArgumentBucket(
-        keyArray.copyOf(),
-        valueArray.copyOf(),
-        initializationStatus,
-        initializeMask,
-        completionValue
-    )
-}
-
 class ArgumentBucket internal constructor(
     private val keyArray: Array<KParameter?>,
     internal val valueArray: Array<Any?>,
