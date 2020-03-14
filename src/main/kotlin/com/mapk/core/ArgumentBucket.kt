@@ -1,5 +1,6 @@
 package com.mapk.core
 
+import java.util.Objects
 import kotlin.reflect.KParameter
 
 class ArgumentBucket internal constructor(
@@ -26,9 +27,7 @@ class ArgumentBucket internal constructor(
         return keyArray[key.index] != null
     }
 
-    override fun containsValue(value: Any?): Boolean {
-        throw UnsupportedOperationException()
-    }
+    override fun containsValue(value: Any?): Boolean = valueArray.any { Objects.equals(value, it) }
 
     override fun get(key: KParameter): Any? = valueArray[key.index]
     fun getByIndex(key: Int): Any? =
