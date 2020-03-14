@@ -40,10 +40,7 @@ fun <T : Any> KClass<T>.toKConstructor(): KFunctionForCall<T> {
         this.companionObjectInstance?.let { companionObject ->
             companionObject::class.functions
                 .filter { it.annotations.any { annotation -> annotation is KConstructor } }
-                .map { KFunctionForCall(
-                    it,
-                    companionObject
-                ) as KFunctionForCall<T> }
+                .map { KFunctionForCall(it, companionObject) as KFunctionForCall<T> }
         } ?: emptyList()
 
     val constructors: List<KFunctionForCall<T>> = factoryConstructor + this.constructors
