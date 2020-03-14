@@ -42,7 +42,7 @@ class ArgumentBucket internal constructor(
     override val keys: MutableSet<KParameter>
         get() = keyArray.filterNotNull().toMutableSet()
     override val values: MutableCollection<Any?>
-        get() = throw UnsupportedOperationException()
+        get() = valueArray.filterIndexed { i, _ -> initializationStatus and initializeMask[i] != 0 }.toMutableList()
 
     fun putIfAbsent(key: KParameter, value: Any?) {
         val index = key.index
