@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.mapk"
-version = "0.1"
+version = "0.6"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -29,6 +29,8 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation(kotlin("reflect"))
+    // https://mvnrepository.com/artifact/org.jetbrains/annotations
+    implementation(group = "org.jetbrains", name = "annotations", version = "19.0.0")
 
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.6.0") {

@@ -1,5 +1,6 @@
 package com.mapk.core
 
+import java.util.Objects
 import kotlin.reflect.KParameter
 
 class ArgumentBucket internal constructor(
@@ -26,9 +27,7 @@ class ArgumentBucket internal constructor(
         return keyArray[key.index] != null
     }
 
-    override fun containsValue(value: Any?): Boolean {
-        throw UnsupportedOperationException()
-    }
+    override fun containsValue(value: Any?): Boolean = valueArray.any { Objects.equals(value, it) }
 
     override fun get(key: KParameter): Any? = valueArray[key.index]
     fun getByIndex(key: Int): Any? =
@@ -42,7 +41,7 @@ class ArgumentBucket internal constructor(
     override val keys: MutableSet<KParameter>
         get() = keyArray.filterNotNull().toMutableSet()
     override val values: MutableCollection<Any?>
-        get() = throw UnsupportedOperationException()
+        get() = valueArray.filterIndexed { i, _ -> initializationStatus and initializeMask[i] != 0 }.toMutableList()
 
     fun putIfAbsent(key: KParameter, value: Any?) {
         val index = key.index
