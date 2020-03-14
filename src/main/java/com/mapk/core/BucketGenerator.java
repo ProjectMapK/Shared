@@ -2,19 +2,24 @@ package com.mapk.core;
 
 import kotlin.Pair;
 import kotlin.reflect.KParameter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 class BucketGenerator {
     private final int initializationStatus;
+    @NotNull
     private final List<Integer> initializeMask;
     private final int completionValue;
 
+    @NotNull
     private final KParameter[] keyArray;
+    @NotNull
     private final Object[] valueArray;
 
-    BucketGenerator(int capacity, Pair<KParameter, Object> instancePair) {
+    BucketGenerator(int capacity, @Nullable Pair<KParameter, Object> instancePair) {
         keyArray = new KParameter[capacity];
         valueArray = new Object[capacity];
 
@@ -38,6 +43,7 @@ class BucketGenerator {
         this.completionValue = completionValue;
     }
 
+    @NotNull
     ArgumentBucket generate() {
         return new ArgumentBucket(
                 keyArray.clone(),
