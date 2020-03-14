@@ -9,7 +9,7 @@ import kotlin.reflect.full.functions
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 
-class KFunctionForCall<T>(private val function: KFunction<T>, instance: Any? = null) {
+class KFunctionForCall<T>(internal val function: KFunction<T>, instance: Any? = null) {
     val parameters: List<KParameter> = function.parameters
     private val generator: BucketGenerator
 
