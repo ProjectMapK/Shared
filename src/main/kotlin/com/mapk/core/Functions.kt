@@ -12,7 +12,7 @@ import kotlin.reflect.full.findAnnotation
 fun KParameter.getAliasOrName(): String? = findAnnotation<KParameterAlias>()?.value ?: name
 
 /**
- * パラメータがignoreされているかをチェックする関数
+ * デフォルト引数を用いるかチェックする関数
  */
 fun KParameter.isUseDefaultArgument(): Boolean {
     if (annotations.any { it is KUseDefaultArgument }) {
