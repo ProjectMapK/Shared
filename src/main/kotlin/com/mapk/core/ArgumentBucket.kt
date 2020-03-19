@@ -15,7 +15,7 @@ class ArgumentBucket internal constructor(
 
     val isInitialized: Boolean get() = initializationStatus == completionValue
 
-    class MutableEntry internal constructor(
+    class Entry internal constructor(
         override val key: KParameter,
         override var value: Any?
     ) : Map.Entry<KParameter, Any?>
@@ -37,7 +37,7 @@ class ArgumentBucket internal constructor(
     override fun isEmpty(): Boolean = count == 0
 
     override val entries: Set<Map.Entry<KParameter, Any?>>
-        get() = keyArray.mapNotNull { it?.let { MutableEntry(it, valueArray[it.index]) } }.toSet()
+        get() = keyArray.mapNotNull { it?.let { Entry(it, valueArray[it.index]) } }.toSet()
     override val keys: MutableSet<KParameter>
         get() = keyArray.filterNotNull().toMutableSet()
     override val values: MutableCollection<Any?>
