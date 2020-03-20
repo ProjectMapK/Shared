@@ -1,5 +1,6 @@
 package com.mapk.core;
 
+import com.mapk.annotations.KParameterRequireNonNull;
 import kotlin.Pair;
 import kotlin.reflect.KParameter;
 import org.jetbrains.annotations.NotNull;
@@ -15,11 +16,15 @@ class BucketGenerator {
     private final int completionValue;
 
     @NotNull
+    private final List<Boolean> isRequireNonNull;
+    @NotNull
     private final KParameter[] keyArray;
     @NotNull
     private final Object[] valueArray;
 
-    BucketGenerator(int capacity, @Nullable Pair<KParameter, Object> instancePair) {
+    BucketGenerator(List<KParameter> parameters, @Nullable Pair<KParameter, Object> instancePair) {
+        final int capacity = parameters.size();
+
         keyArray = new KParameter[capacity];
         valueArray = new Object[capacity];
 
@@ -32,10 +37,15 @@ class BucketGenerator {
             initializationStatus = 0;
         }
 
+        isRequireNonNull = new ArrayList<>(capacity);
         initializeMask = new ArrayList<>(capacity);
         int completionValue = 0;
 
         for (int i = 0, mask = 1; i < capacity; i++, mask <<= 1) {
+            isRequireNonNull.add(
+                    i,
+                    parameters.get(i).getAnnotations().stream().anyMatch(it -> it instanceof KParameterRequireNonNull)
+            );
             initializeMask.add(i, mask);
             completionValue |= mask;
         }
@@ -48,6 +58,7 @@ class BucketGenerator {
         return new ArgumentBucket(
                 keyArray.clone(),
                 valueArray.clone(),
+                isRequireNonNull,
                 initializationStatus,
                 initializeMask,
                 completionValue

@@ -20,11 +20,9 @@ class KFunctionForCall<T>(internal val function: KFunction<T>, instance: Any? = 
         // この関数には確実にアクセスするためアクセシビリティ書き換え
         function.isAccessible = true
 
-        generator = if (instance != null) {
-            BucketGenerator(parameters.size, parameters.first { it.kind == KParameter.Kind.INSTANCE } to instance)
-        } else {
-            BucketGenerator(parameters.size, null)
-        }
+        generator = BucketGenerator(
+            parameters, instance?.let { parameters.first { param -> param.kind == KParameter.Kind.INSTANCE } to it }
+        )
     }
 
     fun getArgumentBucket(): ArgumentBucket = generator.generate()
