@@ -21,8 +21,7 @@ class KFunctionForCall<T>(internal val function: KFunction<T>, instance: Any? = 
         function.isAccessible = true
 
         generator = BucketGenerator(
-            parameters.size,
-            instance?.let { parameters.first { param -> param.kind == KParameter.Kind.INSTANCE } to it }
+            parameters, instance?.let { parameters.first { param -> param.kind == KParameter.Kind.INSTANCE } to it }
         )
     }
 
