@@ -1,17 +1,26 @@
 package com.mapk.core
 
+import com.mapk.annotations.KParameterRequireNonNull
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertThrows
 
 private fun sampleFunction(arg1: Any?, arg2: Any?, arg3: Any?) {
     println(arg1)
     println(arg2)
     println(arg3)
+}
+
+private fun sampleAnnotatedFunction(@KParameterRequireNonNull arg1: Any, arg2: Any?) {
+    println(arg1)
+    println(arg2)
 }
 
 @DisplayName("ArgumentBucketTestのテスト")
@@ -65,6 +74,31 @@ class ArgumentBucketTest {
                 argumentBucket.putIfAbsent(parameter, "first")
                 argumentBucket.putIfAbsent(parameter, "second")
                 assertEquals("first", argumentBucket.getByIndex(0))
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("アノテーションを付与した場合のテスト")
+    inner class AnnotatedParametersTest {
+        @Test
+        @DisplayName("non-null要求のテスト")
+        fun isRequireNonNull() {
+            val forCall = KFunctionForCall(::sampleAnnotatedFunction)
+            val argumentBucket = forCall.getArgumentBucket()
+            val parameters = forCall.parameters
+
+            argumentBucket.putIfAbsent(parameters[0], null)
+            assertThrows<IllegalStateException> { argumentBucket.getByIndex(0) }
+
+            argumentBucket.putIfAbsent(parameters[0], "input")
+            assertDoesNotThrow {
+                assertEquals("input", argumentBucket.getByIndex(0))
+            }
+
+            argumentBucket.putIfAbsent(parameters[1], null)
+            assertDoesNotThrow {
+                assertNull(argumentBucket.getByIndex(1))
             }
         }
     }
