@@ -6,6 +6,7 @@ import kotlin.reflect.KParameter
 class ArgumentBucket internal constructor(
     private val keyArray: Array<KParameter?>,
     internal val valueArray: Array<Any?>,
+    private val isRequireNonNull: List<Boolean>,
     private var initializationStatus: Int,
     private val initializeMask: List<Int>,
     private val completionValue: Int
@@ -45,6 +46,10 @@ class ArgumentBucket internal constructor(
 
     fun putIfAbsent(key: KParameter, value: Any?) {
         val index = key.index
+
+        // null入力禁止かつnullなら無視する
+        if (isRequireNonNull[index] && value == null) return
+
         val temp = initializationStatus or initializeMask[index]
 
         // 先に入ったものを優先するため、初期化済みなら何もしない
