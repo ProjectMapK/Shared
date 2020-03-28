@@ -12,8 +12,8 @@ import java.util.List;
 class BucketGenerator {
     private final int initializationStatus;
     @NotNull
-    private final List<Integer> initializeMask;
-    private final int completionValue;
+    private final List<Long> initializeMask;
+    private final long completionValue;
 
     @NotNull
     private final List<Boolean> isRequireNonNull;
@@ -41,7 +41,8 @@ class BucketGenerator {
         initializeMask = new ArrayList<>(capacity);
         int completionValue = 0;
 
-        for (int i = 0, mask = 1; i < capacity; i++, mask <<= 1) {
+        long mask = 1;
+        for (int i = 0; i < capacity; i++, mask <<= 1) {
             isRequireNonNull.add(
                     i,
                     parameters.get(i).getAnnotations().stream().anyMatch(it -> it instanceof KParameterRequireNonNull)
@@ -59,9 +60,7 @@ class BucketGenerator {
                 keyArray.clone(),
                 valueArray.clone(),
                 isRequireNonNull,
-                initializationStatus,
-                initializeMask,
-                completionValue
+                new BitFlagInitializationStatusManager(initializationStatus, initializeMask, completionValue)
         );
     }
 }
