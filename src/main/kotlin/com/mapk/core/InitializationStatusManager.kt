@@ -20,5 +20,6 @@ internal class BitFlagInitializationStatusManager(
 
     override fun put(index: Int) {
         initializationStatus = initializationStatus or initializeMask[index]
+        count++
     }
 }
