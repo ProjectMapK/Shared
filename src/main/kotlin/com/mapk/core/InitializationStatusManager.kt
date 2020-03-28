@@ -7,19 +7,17 @@ internal interface InitializationStatusManager {
     fun put(index: Int)
 }
 
-internal class BitFlagInitializationStatusManager(
-    private var initializationStatus: Long,
-    private val initializeMask: List<Long>,
-    private val completionValue: Long
+internal class InitializationStatusManagerImpl(
+    private val initializationStatus: Array<Boolean>
 ) : InitializationStatusManager {
-    override val isFullInitialized: Boolean get() = initializationStatus == completionValue
-    // インスタンス有りなら1、そうでなければ0スタート
-    override var count = completionValue.toInt()
+    private val size = initializationStatus.size
+    override val isFullInitialized: Boolean get() = count == size
+    override var count: Int = if (initializationStatus[0]) 1 else 0
 
-    override fun isInitialized(index: Int) = initializationStatus and initializeMask[index] != 0L
+    override fun isInitialized(index: Int): Boolean = initializationStatus[index]
 
     override fun put(index: Int) {
-        initializationStatus = initializationStatus or initializeMask[index]
+        initializationStatus[index] = true
         count++
     }
 }
