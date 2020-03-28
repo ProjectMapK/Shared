@@ -3,9 +3,12 @@ package com.mapk.core;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Kotlinの型推論バグでクラスからvalueOfが使えないため、ここだけJavaで書いている（型引数もT extends Enumでは書けなかった）
+ */
 public class EnumMapper {
     /**
-     * Kotlinの型推論バグでクラスからvalueOfが使えないため、ここだけJavaで書いている（型引数もT extends Enumでは書けなかった）
+     * 文字列 -> Enumのマッピング
      * @param clazz Class of Enum
      * @param value StringValue
      * @param <T> enumClass
