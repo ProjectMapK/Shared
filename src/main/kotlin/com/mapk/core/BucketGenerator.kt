@@ -3,10 +3,7 @@ package com.mapk.core
 import com.mapk.annotations.KParameterRequireNonNull
 import kotlin.reflect.KParameter
 
-internal class BucketGenerator(
-    parameters: List<KParameter>,
-    instancePair: Pair<KParameter, Any>?
-) {
+internal class BucketGenerator(parameters: List<KParameter>, instancePair: Pair<KParameter, Any>?) {
     private val initializationStatus: Array<Boolean>
     private val isRequireNonNull: List<Boolean>
     private val keyArray: Array<KParameter?>
@@ -36,7 +33,7 @@ internal class BucketGenerator(
             keyArray.clone(),
             valueArray.clone(),
             isRequireNonNull,
-            InitializationStatusManagerImpl(initializationStatus.clone())
+            InitializationStatusManager(initializationStatus.clone())
         )
     }
 }
