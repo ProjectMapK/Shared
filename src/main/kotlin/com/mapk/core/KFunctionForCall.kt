@@ -20,9 +20,8 @@ class KFunctionForCall<T>(internal val function: KFunction<T>, instance: Any? = 
         // この関数には確実にアクセスするためアクセシビリティ書き換え
         function.isAccessible = true
 
-        generator = BucketGenerator(
-            parameters, instance?.let { parameters.first { param -> param.kind == KParameter.Kind.INSTANCE } to it }
-        )
+        // パラメータのチェックを済ませてから初期化しないとエラーになる
+        generator = BucketGenerator(parameters, instance)
     }
 
     fun getArgumentBucket(): ArgumentBucket = generator.generate()
