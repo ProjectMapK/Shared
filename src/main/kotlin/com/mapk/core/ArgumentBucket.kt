@@ -37,10 +37,10 @@ class ArgumentBucket internal constructor(
 
     override val entries: Set<Map.Entry<KParameter, Any?>>
         get() = keyArray.mapNotNull { it?.let { Entry(it, valueArray[it.index]) } }.toSet()
-    override val keys: MutableSet<KParameter>
-        get() = keyArray.filterNotNull().toMutableSet()
-    override val values: MutableCollection<Any?>
-        get() = valueArray.filterIndexed { i, _ -> initializationStatusManager.isInitialized(i) }.toMutableList()
+    override val keys: Set<KParameter>
+        get() = keyArray.filterNotNull().toSet()
+    override val values: Collection<Any?>
+        get() = valueArray.filterIndexed { i, _ -> initializationStatusManager.isInitialized(i) }
 
     fun putIfAbsent(key: KParameter, value: Any?) {
         val index = key.index
