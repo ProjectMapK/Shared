@@ -4,7 +4,7 @@ import java.util.Objects
 import kotlin.reflect.KParameter
 
 class ArgumentBucket internal constructor(
-    private val keyArray: Array<KParameter?>,
+    private val keyList: List<KParameter>,
     internal val valueArray: Array<Any?>,
     private val isRequireNonNull: List<Boolean>,
     private val initializationStatusManager: InitializationStatusManager
@@ -22,8 +22,7 @@ class ArgumentBucket internal constructor(
     override val size: Int get() = count
 
     override fun containsKey(key: KParameter): Boolean {
-        // NOTE: もしかしたらステータスを見た方が速いかも
-        return keyArray[key.index] != null
+        return initializationStatusManager.isInitialized(key.index)
     }
 
     override fun containsValue(value: Any?): Boolean = valueArray.any { Objects.equals(value, it) }
@@ -36,11 +35,14 @@ class ArgumentBucket internal constructor(
     override fun isEmpty(): Boolean = count == 0
 
     override val entries: Set<Map.Entry<KParameter, Any?>>
-        get() = keyArray.mapNotNull { it?.let { Entry(it, valueArray[it.index]) } }.toSet()
-    override val keys: MutableSet<KParameter>
-        get() = keyArray.filterNotNull().toMutableSet()
-    override val values: MutableCollection<Any?>
-        get() = valueArray.filterIndexed { i, _ -> initializationStatusManager.isInitialized(i) }.toMutableList()
+        get() = keyList
+            .filter { initializationStatusManager.isInitialized(it.index) }
+            .map { Entry(it, valueArray[it.index]) }
+            .toSet()
+    override val keys: Set<KParameter>
+        get() = keyList.filter { initializationStatusManager.isInitialized(it.index) }.toSet()
+    override val values: Collection<Any?>
+        get() = valueArray.filterIndexed { i, _ -> initializationStatusManager.isInitialized(i) }
 
     fun putIfAbsent(key: KParameter, value: Any?) {
         val index = key.index
@@ -53,7 +55,6 @@ class ArgumentBucket internal constructor(
 
         count += 1
         initializationStatusManager.put(index)
-        keyArray[index] = key
         valueArray[index] = value
 
         return
