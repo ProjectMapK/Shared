@@ -9,9 +9,6 @@ class ArgumentBucket internal constructor(
     private val isRequireNonNull: List<Boolean>,
     private val initializationStatusManager: InitializationStatusManager
 ) : Map<KParameter, Any?> {
-    // インスタンス有りなら1、そうでなければ0スタート
-    private var count: Int = initializationStatusManager.count
-
     val isInitialized: Boolean get() = initializationStatusManager.isFullInitialized
 
     class Entry internal constructor(
@@ -19,7 +16,7 @@ class ArgumentBucket internal constructor(
         override var value: Any?
     ) : Map.Entry<KParameter, Any?>
 
-    override val size: Int get() = count
+    override val size: Int get() = initializationStatusManager.count
 
     override fun containsKey(key: KParameter): Boolean {
         return initializationStatusManager.isInitialized(key.index)
@@ -32,7 +29,7 @@ class ArgumentBucket internal constructor(
         if (initializationStatusManager.isInitialized(key)) valueArray[key]
         else throw IllegalStateException("This argument is not initialized.")
 
-    override fun isEmpty(): Boolean = count == 0
+    override fun isEmpty(): Boolean = initializationStatusManager.count == 0
 
     override val entries: Set<Map.Entry<KParameter, Any?>>
         get() = keyList
@@ -53,7 +50,6 @@ class ArgumentBucket internal constructor(
         // 先に入ったものを優先するため、初期化済みなら何もしない
         if (initializationStatusManager.isInitialized(index)) return
 
-        count += 1
         initializationStatusManager.put(index)
         valueArray[index] = value
 
