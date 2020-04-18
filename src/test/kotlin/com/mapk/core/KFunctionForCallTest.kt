@@ -7,12 +7,15 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KFunctionForCallTest {
     @Nested
     @DisplayName("初期化関連テスト")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class InitializeTest {
         // 空引数の関数
         private fun dummy1() {}
@@ -40,6 +43,7 @@ class KFunctionForCallTest {
 
     @Nested
     @DisplayName("呼び出し関連テスト")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class CallTest {
         @Test
         @DisplayName("コンパニオンオブジェクトから取得した場合")

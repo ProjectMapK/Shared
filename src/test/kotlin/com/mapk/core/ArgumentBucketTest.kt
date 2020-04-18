@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 
@@ -24,9 +25,11 @@ private fun sampleAnnotatedFunction(@KParameterRequireNonNull arg1: Any, arg2: A
 }
 
 @DisplayName("ArgumentBucketTestのテスト")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ArgumentBucketTest {
     @Nested
     @DisplayName("シンプルな呼び出しのテスト")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class SimpleTest {
         private lateinit var argumentBucket: ArgumentBucket
 
@@ -80,6 +83,7 @@ class ArgumentBucketTest {
 
     @Nested
     @DisplayName("アノテーションを付与した場合のテスト")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class AnnotatedParametersTest {
         @Test
         @DisplayName("non-null要求のテスト")
