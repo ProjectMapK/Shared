@@ -33,7 +33,7 @@ dependencies {
     implementation(group = "org.jetbrains", name = "annotations", version = "19.0.0")
 
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter
-    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.6.1") {
+    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.6.2") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     // https://mvnrepository.com/artifact/io.mockk/mockk
