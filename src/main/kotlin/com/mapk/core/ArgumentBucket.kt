@@ -53,7 +53,5 @@ class ArgumentBucket internal constructor(
 
         initializationStatusManager.put(index)
         valueArray[index] = value
-
-        return
     }
 }
