@@ -11,7 +11,7 @@ internal class BucketGenerator(private val parameters: List<KParameter>, instanc
     init {
         val capacity = parameters.size
         isRequireNonNull = parameters.map { param ->
-            param.annotations.stream().anyMatch { it is KParameterRequireNonNull }
+            param.annotations.any { it is KParameterRequireNonNull }
         }
         initializationStatus = Array(capacity) { false }
 
@@ -30,7 +30,7 @@ internal class BucketGenerator(private val parameters: List<KParameter>, instanc
             parameters,
             valueArray.clone(),
             isRequireNonNull,
-            InitializationStatusManager(initializationStatus.clone())
+            initializationStatus.clone()
         )
     }
 }

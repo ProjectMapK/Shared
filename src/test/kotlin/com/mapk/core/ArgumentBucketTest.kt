@@ -10,8 +10,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.assertDoesNotThrow
-import org.junit.jupiter.api.assertThrows
 
 private fun sampleFunction(arg1: Any?, arg2: Any?, arg3: Any?) {
     println(arg1)
@@ -66,7 +64,7 @@ class ArgumentBucketTest {
             fun setNewArgument() {
                 val parameter = ::sampleFunction.parameters.first { it.index == 0 }
                 argumentBucket.putIfAbsent(parameter, "argument")
-                assertEquals("argument", argumentBucket.getByIndex(0))
+                assertEquals("argument", argumentBucket[parameter])
             }
 
             @Test
@@ -76,7 +74,7 @@ class ArgumentBucketTest {
 
                 argumentBucket.putIfAbsent(parameter, "first")
                 argumentBucket.putIfAbsent(parameter, "second")
-                assertEquals("first", argumentBucket.getByIndex(0))
+                assertEquals("first", argumentBucket[parameter])
             }
         }
     }
@@ -93,17 +91,15 @@ class ArgumentBucketTest {
             val parameters = forCall.parameters
 
             argumentBucket.putIfAbsent(parameters[0], null)
-            assertThrows<IllegalStateException> { argumentBucket.getByIndex(0) }
+            assertFalse(argumentBucket.containsKey(parameters[0]))
 
             argumentBucket.putIfAbsent(parameters[0], "input")
-            assertDoesNotThrow {
-                assertEquals("input", argumentBucket.getByIndex(0))
-            }
+            assertTrue(argumentBucket.containsKey(parameters[0]))
+            assertEquals("input", argumentBucket[parameters[0]])
 
             argumentBucket.putIfAbsent(parameters[1], null)
-            assertDoesNotThrow {
-                assertNull(argumentBucket.getByIndex(1))
-            }
+            assertTrue(argumentBucket.containsKey(parameters[1]))
+            assertNull(argumentBucket[parameters[1]])
         }
     }
 }

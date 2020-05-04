@@ -7,8 +7,9 @@ class ArgumentBucket internal constructor(
     private val keyList: List<KParameter>,
     internal val valueArray: Array<Any?>,
     private val isRequireNonNull: List<Boolean>,
-    private val initializationStatusManager: InitializationStatusManager
+    initializationStatus: Array<Boolean>
 ) : Map<KParameter, Any?> {
+    private val initializationStatusManager = InitializationStatusManager(initializationStatus)
     val isInitialized: Boolean get() = initializationStatusManager.isFullInitialized
 
     class Entry internal constructor(
@@ -25,9 +26,6 @@ class ArgumentBucket internal constructor(
     override fun containsValue(value: Any?): Boolean = valueArray.any { Objects.equals(value, it) }
 
     override fun get(key: KParameter): Any? = valueArray[key.index]
-    fun getByIndex(key: Int): Any? =
-        if (initializationStatusManager.isInitialized(key)) valueArray[key]
-        else throw IllegalStateException("This argument is not initialized.")
 
     override fun isEmpty(): Boolean = initializationStatusManager.count == 0
 
@@ -52,7 +50,5 @@ class ArgumentBucket internal constructor(
 
         initializationStatusManager.put(index)
         valueArray[index] = value
-
-        return
     }
 }
