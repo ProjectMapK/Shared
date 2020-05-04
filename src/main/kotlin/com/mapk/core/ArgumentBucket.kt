@@ -7,8 +7,9 @@ class ArgumentBucket internal constructor(
     private val keyList: List<KParameter>,
     internal val valueArray: Array<Any?>,
     private val isRequireNonNull: List<Boolean>,
-    private val initializationStatusManager: InitializationStatusManager
+    initializationStatus: Array<Boolean>
 ) : Map<KParameter, Any?> {
+    private val initializationStatusManager = InitializationStatusManager(initializationStatus)
     val isInitialized: Boolean get() = initializationStatusManager.isFullInitialized
 
     class Entry internal constructor(

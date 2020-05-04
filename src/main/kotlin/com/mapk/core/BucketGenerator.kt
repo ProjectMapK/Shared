@@ -30,7 +30,7 @@ internal class BucketGenerator(private val parameters: List<KParameter>, instanc
             parameters,
             valueArray.clone(),
             isRequireNonNull,
-            InitializationStatusManager(initializationStatus.clone())
+            initializationStatus.clone()
         )
     }
 }
