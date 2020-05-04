@@ -26,9 +26,6 @@ class ArgumentBucket internal constructor(
     override fun containsValue(value: Any?): Boolean = valueArray.any { Objects.equals(value, it) }
 
     override fun get(key: KParameter): Any? = valueArray[key.index]
-    fun getByIndex(key: Int): Any? =
-        if (initializationStatusManager.isInitialized(key)) valueArray[key]
-        else throw IllegalStateException("This argument is not initialized.")
 
     override fun isEmpty(): Boolean = initializationStatusManager.count == 0
 
