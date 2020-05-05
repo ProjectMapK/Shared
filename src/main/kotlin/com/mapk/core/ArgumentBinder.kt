@@ -1,6 +1,5 @@
 package com.mapk.core
 
-// TODO: 関数バインダーの追加
 internal sealed class ArgumentBinder {
     abstract val index: Int
 
@@ -18,6 +17,17 @@ internal sealed class ArgumentBinder {
             } else {
                 false
             }
+        }
+    }
+
+    class Function(
+        private val function: KFunctionForCall<*>,
+        override val index: Int
+    ) : ArgumentBinder() {
+        override fun bindArgument(adaptor: ArgumentAdaptor, valueArray: Array<Any?>): Boolean {
+            val temp = function.call(adaptor)
+            valueArray[index] = temp
+            return true
         }
     }
 }
