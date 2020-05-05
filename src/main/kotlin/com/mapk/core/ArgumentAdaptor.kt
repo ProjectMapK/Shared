@@ -13,7 +13,9 @@ class ArgumentAdaptor(private val requiredParameters: Map<String, ValueParameter
     }
 
     fun putIfAbsent(key: String, value: Any?) {
-        if (!isInitialized(key)) argumentMap[key] = value
+        if (!isInitialized(key) && (!requiredParameters.getValue(key).isNullable && value == null)) {
+            argumentMap[key] = value
+        }
     }
 
     // 事前に存在チェックはやるものと仮定してここでは読み出しだけ実装
