@@ -89,10 +89,10 @@ class Over64ArgTest {
 
     @Test
     fun test() {
-        val functionForCall = KFunctionForCall(::Dst)
-        val dst: Dst = functionForCall.getArgumentBucket().apply {
+        val functionForCall = KFunctionForCall(::Dst, { it })
+        val dst: Dst = functionForCall.getArgumentAdaptor().apply {
             functionForCall.parameters.forEach {
-                putIfAbsent(it, it.index)
+                putIfAbsent(it.name!!, it.index)
             }
         }.let { functionForCall.call(it) }
 
