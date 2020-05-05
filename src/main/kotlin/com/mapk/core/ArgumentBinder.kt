@@ -1,7 +1,7 @@
 package com.mapk.core
 
 // TODO: 関数バインダーの追加
-sealed class ArgumentBinder {
+internal sealed class ArgumentBinder {
     abstract val index: Int
 
     /**
