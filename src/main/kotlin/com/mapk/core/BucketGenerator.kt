@@ -1,36 +1,30 @@
 package com.mapk.core
 
-import com.mapk.annotations.KParameterRequireNonNull
 import kotlin.reflect.KParameter
 
-internal class BucketGenerator(private val parameters: List<KParameter>, instance: Any?) {
-    private val initializationStatus: Array<Boolean>
-    private val isRequireNonNull: List<Boolean>
-    private val valueArray: Array<Any?>
+internal class BucketGenerator(
+    private val parameters: List<KParameter>,
+    filteredParameters: List<KParameter>, // フィルタリングは外でもやっているため、ここでは引数として受け取る
+    instance: Any?,
+    parameterNameConverter: (String) -> String
+) {
+    private val binders: List<ArgumentBinder>
+    private val originalValueArray: Array<Any?>
+    private val originalInitializationStatus: Array<Boolean>
 
     init {
-        val capacity = parameters.size
-        isRequireNonNull = parameters.map { param ->
-            param.annotations.any { it is KParameterRequireNonNull }
-        }
-        initializationStatus = Array(capacity) { false }
-
-        valueArray = arrayOfNulls(capacity)
-
+        // TODO: ネスト関連への対応
+        binders = filteredParameters.map { ArgumentBinder.Value(parameterNameConverter(it.getAliasOrName()!!), it.index) }
+        // 配列系ではフィルタリング前のサイズが必要
+        originalValueArray = arrayOfNulls(parameters.size)
+        originalInitializationStatus = Array(parameters.size) { false }
         if (instance != null) {
-            valueArray[0] = instance
-            initializationStatus[0] = true
-        } else {
-            initializationStatus[0] = false
+            originalValueArray[0] = instance
+            originalInitializationStatus[0] = true
         }
     }
 
-    fun generate(): ArgumentBucket {
-        return ArgumentBucket(
-            parameters,
-            valueArray.clone(),
-            isRequireNonNull,
-            initializationStatus.clone()
-        )
-    }
+    fun generate(adaptor: ArgumentAdaptor): ArgumentBucket = ArgumentBucket(
+        parameters, originalValueArray.clone(), originalInitializationStatus.clone(), binders, adaptor
+    )
 }
