@@ -9,12 +9,12 @@ import kotlin.reflect.full.findAnnotation
 /**
  * パラメータからエイリアスもしくはプロパティ名を取得する関数
  */
-fun KParameter.getAliasOrName(): String? = findAnnotation<KParameterAlias>()?.value ?: name
+internal fun KParameter.getAliasOrName(): String? = findAnnotation<KParameterAlias>()?.value ?: name
 
 /**
  * デフォルト引数を用いるかチェックする関数
  */
-fun KParameter.isUseDefaultArgument(): Boolean {
+internal fun KParameter.isUseDefaultArgument(): Boolean {
     if (annotations.any { it is KUseDefaultArgument }) {
         if (!isOptional) {
             throw IllegalArgumentException("Find KUseDefaultArgument, but it's not has default argument.")
