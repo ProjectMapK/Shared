@@ -2,6 +2,7 @@ package com.mapk.core
 
 import io.mockk.spyk
 import io.mockk.verify
+import kotlin.reflect.KParameter
 import kotlin.reflect.full.functions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
@@ -25,19 +26,19 @@ class KFunctionForCallTest {
         @Test
         @DisplayName("不正な関数を入力した場合")
         fun withNoInstance() {
-            assertThrows<IllegalArgumentException> { KFunctionForCall(this::dummy1) }
+            assertThrows<IllegalArgumentException> { KFunctionForCall(this::dummy1, { it }) }
         }
 
         @Test
         @DisplayName("不正な関数を入力した場合（インスタンス付き = ファクトリーメソッド想定）")
         fun withInstance() {
-            assertThrows<IllegalArgumentException> { KFunctionForCall(this::dummy2, object {}) }
+            assertThrows<IllegalArgumentException> { KFunctionForCall(this::dummy2, { it }, object {}) }
         }
 
         @Test
         @DisplayName("正常入力")
         fun isValid() {
-            assertDoesNotThrow { KFunctionForCall(this::dummy2) }
+            assertDoesNotThrow { KFunctionForCall(this::dummy2, { it }) }
         }
     }
 
@@ -52,11 +53,12 @@ class KFunctionForCallTest {
                 .first { it.name == (KFunctionForCallTest)::declaredOnCompanionObject.name }
                 .let { spyk(it) }
 
-            val kFunctionForCall = KFunctionForCall(function, Companion)
+            val kFunctionForCall = KFunctionForCall(function, { it }, Companion)
 
-            val bucket = kFunctionForCall.getArgumentBucket()
-            kFunctionForCall.parameters.forEach { bucket.putIfAbsent(it, it.index) }
-            val result = kFunctionForCall.call(bucket)
+            val adaptor = kFunctionForCall.getArgumentAdaptor()
+            adaptor.putIfAbsent("arg1", 1)
+            adaptor.putIfAbsent("arg2", 2)
+            val result = kFunctionForCall.call(adaptor)
             assertEquals("12", result)
             verify(exactly = 1) { function.call(*anyVararg()) }
         }
@@ -67,12 +69,12 @@ class KFunctionForCallTest {
         @DisplayName("デフォルト値を用いる場合")
         fun useDefaultValue() {
             val func = spyk(::func)
-            val kFunctionForCall = KFunctionForCall(func)
-            val argumentBucket = kFunctionForCall.getArgumentBucket()
+            val kFunctionForCall = KFunctionForCall(func, { it })
+            val adaptor = kFunctionForCall.getArgumentAdaptor()
 
-            func.parameters.forEach { if (!it.isOptional) argumentBucket.putIfAbsent(it, it.name) }
+            func.parameters.forEach { if (!it.isOptional) adaptor.putIfAbsent(it.name!!, it.name) }
 
-            val result = kFunctionForCall.call(argumentBucket)
+            val result = kFunctionForCall.call(adaptor)
             assertEquals("key" to "default", result)
             verify(exactly = 1) { func.callBy(any()) }
         }
@@ -84,16 +86,20 @@ class KFunctionForCallTest {
                 .first { it.name == (KFunctionForCallTest)::declaredOnCompanionObject.name }
                 .let { spyk(it) }
 
-            val kFunctionForCall = KFunctionForCall(function, Companion)
+            val kFunctionForCall = KFunctionForCall(function, { it }, Companion)
 
-            val bucket1 = kFunctionForCall.getArgumentBucket()
-            kFunctionForCall.parameters.forEach { bucket1.putIfAbsent(it, it.index) }
-            val result1 = kFunctionForCall.call(bucket1)
+            val adaptor1 = kFunctionForCall.getArgumentAdaptor()
+            kFunctionForCall.parameters
+                .filter { it.kind == KParameter.Kind.VALUE }
+                .forEach { adaptor1.putIfAbsent(it.name!!, it.index) }
+            val result1 = kFunctionForCall.call(adaptor1)
             assertEquals("12", result1)
 
-            val bucket2 = kFunctionForCall.getArgumentBucket()
-            kFunctionForCall.parameters.forEach { bucket2.putIfAbsent(it, it.index + 1) }
-            val result2 = kFunctionForCall.call(bucket2)
+            val adaptor2 = kFunctionForCall.getArgumentAdaptor()
+            kFunctionForCall.parameters
+                .filter { it.kind == KParameter.Kind.VALUE }
+                .forEach { adaptor2.putIfAbsent(it.name!!, it.index + 1) }
+            val result2 = kFunctionForCall.call(adaptor2)
             assertEquals("23", result2)
 
             verify(exactly = 2) { function.call(*anyVararg()) }

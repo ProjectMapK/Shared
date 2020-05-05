@@ -42,27 +42,27 @@ class ToKConstructorTest {
     @Test
     @DisplayName("セカンダリコンストラクタからの取得テスト")
     fun testGetFromSecondaryConstructor() {
-        val function = SecondaryConstructorDst::class.toKConstructor().function
+        val function = SecondaryConstructorDst::class.toKConstructor { it }.function
         Assertions.assertTrue(function.annotations.any { it is KConstructor })
     }
 
     @Test
     @DisplayName("ファクトリーメソッドからの取得テスト")
     fun testGetFromFactoryMethod() {
-        val function = CompanionFactoryDst::class.toKConstructor().function
+        val function = CompanionFactoryDst::class.toKConstructor { it }.function
         Assertions.assertTrue(function.annotations.any { it is KConstructor })
     }
 
     @Test
     @DisplayName("無指定でプライマリコンストラクタからの取得テスト")
     fun testGetFromPrimaryConstructor() {
-        val function = ConstructorDst::class.toKConstructor().function
+        val function = ConstructorDst::class.toKConstructor { it }.function
         Assertions.assertEquals(ConstructorDst::class.primaryConstructor, function)
     }
 
     @Test
     @DisplayName("対象を複数指定した場合のテスト")
     fun testMultipleDeclareConstructor() {
-        assertThrows<IllegalArgumentException> { MultipleConstructorDst::class.toKConstructor() }
+        assertThrows<IllegalArgumentException> { MultipleConstructorDst::class.toKConstructor { it } }
     }
 }

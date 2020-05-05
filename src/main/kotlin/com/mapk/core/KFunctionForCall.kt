@@ -8,10 +8,20 @@ import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
+import org.jetbrains.annotations.TestOnly
 
-class KFunctionForCall<T>(internal val function: KFunction<T>, instance: Any? = null) {
-    val parameters: List<KParameter> = function.parameters
-    private val generator: BucketGenerator
+class KFunctionForCall<T>(
+    internal val function: KFunction<T>,
+    parameterNameConverter: (String) -> String,
+    instance: Any? = null
+) {
+    @TestOnly
+    internal val parameters: List<KParameter> = function.parameters
+
+    val requiredParameters: List<ValueParameter<*>>
+    private val requiredParametersMap: Map<String, ValueParameter<*>>
+
+    private val bucketGenerator: BucketGenerator
 
     init {
         if (parameters.isEmpty() || (instance != null && parameters.size == 1))
@@ -20,33 +30,37 @@ class KFunctionForCall<T>(internal val function: KFunction<T>, instance: Any? = 
         // この関数には確実にアクセスするためアクセシビリティ書き換え
         function.isAccessible = true
 
-        // パラメータのチェックを済ませてから初期化しないとエラーになる
-        generator = BucketGenerator(parameters, instance)
+        val filteredParameters = parameters.filter { it.kind == KParameter.Kind.VALUE && !it.isUseDefaultArgument() }
+        requiredParameters = filteredParameters.map { ValueParameterImpl.newInstance(it, parameterNameConverter) }
+        requiredParametersMap = requiredParameters.associateBy { it.name }
+
+        bucketGenerator = BucketGenerator(parameters, filteredParameters, instance, parameterNameConverter)
     }
 
-    fun getArgumentBucket(): ArgumentBucket = generator.generate()
+    fun getArgumentAdaptor(): ArgumentAdaptor = ArgumentAdaptor(requiredParametersMap)
 
-    fun call(argumentBucket: ArgumentBucket): T =
-        if (argumentBucket.isInitialized) function.call(*argumentBucket.valueArray)
-        else function.callBy(argumentBucket)
+    fun call(adaptor: ArgumentAdaptor): T {
+        val bucket = bucketGenerator.generate(adaptor)
+        return if (bucket.isInitialized) function.call(*bucket.valueArray) else function.callBy(bucket)
+    }
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <T : Any> KClass<T>.toKConstructor(): KFunctionForCall<T> {
+fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: (String) -> String): KFunctionForCall<T> {
     val factoryConstructor: List<KFunctionForCall<T>> =
         this.companionObjectInstance?.let { companionObject ->
             companionObject::class.functions
                 .filter { it.annotations.any { annotation -> annotation is KConstructor } }
-                .map { KFunctionForCall(it, companionObject) as KFunctionForCall<T> }
+                .map { KFunctionForCall(it, parameterNameConverter, companionObject) as KFunctionForCall<T> }
         } ?: emptyList()
 
     val constructors: List<KFunctionForCall<T>> = factoryConstructor + this.constructors
         .filter { it.annotations.any { annotation -> annotation is KConstructor } }
-        .map { KFunctionForCall(it) }
+        .map { KFunctionForCall(it, parameterNameConverter) }
 
     if (constructors.size == 1) return constructors.single()
 
-    if (constructors.isEmpty()) return KFunctionForCall(this.primaryConstructor!!)
+    if (constructors.isEmpty()) return KFunctionForCall(this.primaryConstructor!!, parameterNameConverter)
 
     throw IllegalArgumentException("Find multiple target.")
 }
