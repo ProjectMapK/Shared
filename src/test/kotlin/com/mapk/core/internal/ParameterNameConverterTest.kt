@@ -38,5 +38,12 @@ class ParameterNameConverterTest {
                 assertEquals(expected, actual)
             }
         }
+
+        @Test
+        @DisplayName("Simpleにした場合のテスト")
+        fun simple() {
+            val simple2 = simple.toSimple()
+            assertEquals(simple, simple2)
+        }
     }
 }
