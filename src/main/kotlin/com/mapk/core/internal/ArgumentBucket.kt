@@ -17,8 +17,7 @@ internal class ArgumentBucket(
         override var value: Any?
     ) : Map.Entry<KParameter, Any?>
 
-    private val initializationStatusManager =
-        InitializationStatusManager(initializationStatus)
+    private val initializationStatusManager = InitializationStatusManager(initializationStatus)
     val isInitialized: Boolean
     override val size: Int
 
@@ -32,9 +31,7 @@ internal class ArgumentBucket(
         size = initializationStatusManager.count
     }
 
-    override fun containsKey(key: KParameter): Boolean {
-        return initializationStatusManager.isInitialized(key.index)
-    }
+    override fun containsKey(key: KParameter): Boolean = initializationStatusManager.isInitialized(key.index)
 
     override fun containsValue(value: Any?): Boolean = valueArray.any { Objects.equals(value, it) }
 
