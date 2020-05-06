@@ -46,4 +46,39 @@ class ParameterNameConverterTest {
             assertEquals(simple, simple2)
         }
     }
+
+    @Nested
+    @DisplayName("プレフィックス付き変換機能のテスト")
+    inner class WithPrefixTest {
+        private val withPrefix =
+            ParameterNameConverter.WithPrefix("abcdef", NameJoiner.Snake) { it.toUpperCase() }
+
+        @Test
+        @DisplayName("単純な変換テスト")
+        fun convertTest() {
+            val expected = "ABCDEF_GHIJKL"
+            val actual = withPrefix.convert("GhIJkL")
+            assertEquals(expected, actual)
+        }
+
+        @Test
+        @DisplayName("ネストしたインスタンスを作るテスト")
+        fun nestTest() {
+            val nested = withPrefix.nest("GhIJkL", NameJoiner.Kebab)
+            run {
+                val expected = "ABCDEF_GHIJKL-MNOPQR"
+                val actual = nested.convert("mnOpQr")
+                assertEquals(expected, actual)
+            }
+        }
+
+        @Test
+        @DisplayName("Simpleにした場合のテスト")
+        fun simple() {
+            val simple = withPrefix.toSimple()
+            val expected = "ABCDEF"
+            val actual = simple.convert(expected)
+            assertEquals(expected, actual)
+        }
+    }
 }
