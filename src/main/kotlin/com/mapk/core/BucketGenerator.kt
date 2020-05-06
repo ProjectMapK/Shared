@@ -30,9 +30,16 @@ internal class BucketGenerator(
 
                 ArgumentBinder.Function(
                     (it.type.classifier as KClass<*>).toKConstructor(converter),
-                    it.index
+                    it.index,
+                    it.annotations
                 )
-            } ?: ArgumentBinder.Value(parameterNameConverter(name), it.index)
+            } ?: ArgumentBinder.Value(
+                it.index,
+                it.annotations,
+                it.isOptional,
+                parameterNameConverter(name),
+                it.type.classifier as KClass<*>
+            )
         }
         // 配列系ではフィルタリング前のサイズが必要
         originalValueArray = arrayOfNulls(parameters.size)
