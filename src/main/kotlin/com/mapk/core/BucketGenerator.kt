@@ -11,39 +11,12 @@ internal class BucketGenerator(
     instance: Any?,
     parameterNameConverter: ParameterNameConverter
 ) {
-    private val binders: List<ArgumentBinder>
-    private val originalValueArray: Array<Any?>
-    private val originalInitializationStatus: Array<Boolean>
+    private val binders: List<ArgumentBinder> = filteredParameters.map { it.toArgumentBinder(parameterNameConverter) }
+    private val originalValueArray: Array<Any?> = arrayOfNulls(parameters.size)
+    private val originalInitializationStatus: Array<Boolean> = Array(parameters.size) { false }
     val valueParameters: List<ValueParameter<*>>
 
     init {
-        binders = filteredParameters.map {
-            val name = it.getAliasOrName()!!
-
-            it.findAnnotation<KParameterFlatten>()?.let { annotation ->
-                // 名前の変換処理、結合が必要な場合はインスタンスを持ってきて対応する
-                val converter: ParameterNameConverter = if (annotation.fieldNameToPrefix) {
-                    parameterNameConverter.nest(name, annotation.nameJoiner.objectInstance!!)
-                } else {
-                    parameterNameConverter
-                }
-
-                ArgumentBinder.Function(
-                    (it.type.classifier as KClass<*>).toKConstructor(converter),
-                    it.index,
-                    it.annotations
-                )
-            } ?: ArgumentBinder.Value(
-                it.index,
-                it.annotations,
-                it.isOptional,
-                parameterNameConverter.convert(name),
-                it.type.classifier as KClass<*>
-            )
-        }
-        // 配列系ではフィルタリング前のサイズが必要
-        originalValueArray = arrayOfNulls(parameters.size)
-        originalInitializationStatus = Array(parameters.size) { false }
         if (instance != null) {
             originalValueArray[0] = instance
             originalInitializationStatus[0] = true
