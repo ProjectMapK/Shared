@@ -11,7 +11,8 @@ import org.junit.jupiter.api.Test
 
 @DisplayName("パラメータのフラット化テスト")
 class KParameterFlattenTest {
-    data class InnerDst1(val quxQux: Int)
+    data class InnerDst1(val quxQux: Int, @KParameterFlatten(fieldNameToPrefix = false) val fredFred: InnerInnerDst)
+    data class InnerInnerDst(val waldoWaldo: Int)
     data class InnerDst2(val quuxQuux: Int)
     data class InnerDst3(val graultGrault: String) {
         @KConstructor
@@ -31,8 +32,14 @@ class KParameterFlattenTest {
 
     companion object {
         val expectedParams: Set<String> =
-            linkedSetOf("fooFoo", "barBar", "bazBazQuxQux", "quuxQuux", "garplyGarply-graultGrault")
-        val expected: Dst = Dst(0, 1, InnerDst1(2), InnerDst2(3), InnerDst3("4"))
+            linkedSetOf("fooFoo", "barBar", "bazBazQuxQux", "waldoWaldo", "quuxQuux", "garplyGarply-graultGrault")
+        val expected: Dst = Dst(
+            0,
+            1,
+            InnerDst1(2, InnerInnerDst(3)),
+            InnerDst2(4),
+            InnerDst3("5")
+        )
     }
 
     @Test
