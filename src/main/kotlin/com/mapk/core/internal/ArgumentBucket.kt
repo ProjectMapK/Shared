@@ -1,5 +1,6 @@
-package com.mapk.core
+package com.mapk.core.internal
 
+import com.mapk.core.ArgumentAdaptor
 import java.util.Objects
 import kotlin.reflect.KParameter
 
@@ -16,7 +17,8 @@ internal class ArgumentBucket(
         override var value: Any?
     ) : Map.Entry<KParameter, Any?>
 
-    private val initializationStatusManager = InitializationStatusManager(initializationStatus)
+    private val initializationStatusManager =
+        InitializationStatusManager(initializationStatus)
     val isInitialized: Boolean
     override val size: Int
 
