@@ -63,3 +63,24 @@ internal class BucketGenerator(
         parameters, originalValueArray.clone(), originalInitializationStatus.clone(), binders, adaptor
     )
 }
+
+private fun KParameter.toArgumentBinder(parameterNameConverter: ParameterNameConverter): ArgumentBinder {
+    val name = getAliasOrName()!!
+
+    return findAnnotation<KParameterFlatten>()?.let { annotation ->
+        // 名前の変換処理、結合が必要な場合はインスタンスを持ってきて対応する
+        val converter: ParameterNameConverter = if (annotation.fieldNameToPrefix) {
+            parameterNameConverter.nest(name, annotation.nameJoiner.objectInstance!!)
+        } else {
+            parameterNameConverter
+        }
+
+        ArgumentBinder.Function((type.classifier as KClass<*>).toKConstructor(converter), index, annotations)
+    } ?: ArgumentBinder.Value(
+        index,
+        annotations,
+        isOptional,
+        parameterNameConverter.convert(name),
+        type.classifier as KClass<*>
+    )
+}
