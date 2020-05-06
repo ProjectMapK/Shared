@@ -14,6 +14,7 @@ internal class BucketGenerator(
     private val binders: List<ArgumentBinder>
     private val originalValueArray: Array<Any?>
     private val originalInitializationStatus: Array<Boolean>
+    val valueParameters: List<ValueParameter<*>>
 
     init {
         binders = filteredParameters.map {
@@ -47,6 +48,15 @@ internal class BucketGenerator(
         if (instance != null) {
             originalValueArray[0] = instance
             originalInitializationStatus[0] = true
+        }
+
+        // TODO: 仮置き、これを生成するのはKFunctionForCallの方が良さげ
+        valueParameters = binders.fold(ArrayList()) { acc, elm ->
+            when (elm) {
+                is ArgumentBinder.Value<*> -> acc.add(elm)
+                is ArgumentBinder.Function -> acc.addAll(elm.requiredParameters)
+            }
+            acc
         }
     }
 
