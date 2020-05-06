@@ -16,9 +16,7 @@ internal fun KParameter.getAliasOrName(): String? = findAnnotation<KParameterAli
  */
 internal fun KParameter.isUseDefaultArgument(): Boolean {
     if (annotations.any { it is KUseDefaultArgument }) {
-        if (!isOptional) {
-            throw IllegalArgumentException("Find KUseDefaultArgument, but it's not has default argument.")
-        }
+        if (!isOptional) throw IllegalArgumentException("Find KUseDefaultArgument, but it's not has default argument.")
         return true
     }
     return false
