@@ -1,5 +1,6 @@
 package com.mapk.core
 
+import com.mapk.annotations.KConstructor
 import com.mapk.annotations.KParameterFlatten
 import io.mockk.spyk
 import io.mockk.verify
@@ -12,6 +13,10 @@ import org.junit.jupiter.api.Test
 class KParameterFlattenTest {
     data class InnerDst1(val quxQux: Int)
     data class InnerDst2(val quuxQuux: Int)
+    data class InnerDst3(val graultGrault: String) {
+        @KConstructor
+        constructor(graultGrault: Int) : this(graultGrault.toString())
+    }
 
     data class Dst(
         val fooFoo: Int,
@@ -19,12 +24,15 @@ class KParameterFlattenTest {
         @KParameterFlatten
         val bazBaz: InnerDst1,
         @KParameterFlatten(fieldNameToPrefix = false)
-        val corgeCorge: InnerDst2
+        val corgeCorge: InnerDst2,
+        @KParameterFlatten(namingConvention = NameJoiner.Kebab::class)
+        val garplyGarply: InnerDst3
     )
 
     companion object {
-        val expectedParams: Set<String> = linkedSetOf("fooFoo", "barBar", "bazBazQuxQux", "quuxQuux")
-        val expected: Dst = Dst(0, 1, InnerDst1(2), InnerDst2(3))
+        val expectedParams: Set<String> =
+            linkedSetOf("fooFoo", "barBar", "bazBazQuxQux", "quuxQuux", "garplyGarply-graultGrault")
+        val expected: Dst = Dst(0, 1, InnerDst1(2), InnerDst2(3), InnerDst3("4"))
     }
 
     @Test
