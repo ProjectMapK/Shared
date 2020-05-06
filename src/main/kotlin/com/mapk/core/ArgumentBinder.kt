@@ -37,6 +37,9 @@ internal sealed class ArgumentBinder(val annotations: List<Annotation>) {
     ) : ArgumentBinder(annotations) {
         override fun bindArgument(adaptor: ArgumentAdaptor, valueArray: Array<Any?>): Boolean {
             val temp = function.call(adaptor)
+
+            if (!isNullable && temp == null) return false
+
             valueArray[index] = temp
             return true
         }
