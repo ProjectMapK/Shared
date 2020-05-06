@@ -8,5 +8,5 @@ import kotlin.reflect.KClass
 @MustBeDocumented
 annotation class KParameterFlatten(
     val fieldNameToPrefix: Boolean = true,
-    val namingConvention: KClass<out NameJoiner>
+    val namingConvention: KClass<out NameJoiner> = NameJoiner.Camel::class
 )
