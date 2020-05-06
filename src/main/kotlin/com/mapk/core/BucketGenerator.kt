@@ -23,7 +23,7 @@ internal class BucketGenerator(
             it.findAnnotation<KParameterFlatten>()?.let { annotation ->
                 // 名前の変換処理、結合が必要な場合はインスタンスを持ってきて対応する
                 val converter: (String) -> String = if (annotation.fieldNameToPrefix) {
-                    val joiner = annotation.namingConvention.objectInstance!!
+                    val joiner = annotation.nameJoiner.objectInstance!!
                     { suffix -> parameterNameConverter(joiner.join(name, suffix)) }
                 } else {
                     parameterNameConverter

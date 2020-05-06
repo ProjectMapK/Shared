@@ -25,7 +25,7 @@ class KParameterFlattenTest {
         val bazBaz: InnerDst1,
         @KParameterFlatten(fieldNameToPrefix = false)
         val corgeCorge: InnerDst2,
-        @KParameterFlatten(namingConvention = NameJoiner.Kebab::class)
+        @KParameterFlatten(nameJoiner = NameJoiner.Kebab::class)
         val garplyGarply: InnerDst3
     )
 
