@@ -11,6 +11,7 @@ import kotlin.reflect.jvm.isAccessible
 import org.jetbrains.annotations.TestOnly
 
 class KFunctionForCall<T>(
+    @TestOnly
     internal val function: KFunction<T>,
     parameterNameConverter: (String) -> String,
     instance: Any? = null
