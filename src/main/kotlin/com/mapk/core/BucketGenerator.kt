@@ -9,7 +9,7 @@ internal class BucketGenerator(
     private val parameters: List<KParameter>,
     filteredParameters: List<KParameter>, // フィルタリングは外でもやっているため、ここでは引数として受け取る
     instance: Any?,
-    parameterNameConverter: (String) -> String
+    parameterNameConverter: ParameterNameConverter
 ) {
     private val binders: List<ArgumentBinder>
     private val originalValueArray: Array<Any?>
@@ -22,9 +22,8 @@ internal class BucketGenerator(
 
             it.findAnnotation<KParameterFlatten>()?.let { annotation ->
                 // 名前の変換処理、結合が必要な場合はインスタンスを持ってきて対応する
-                val converter: (String) -> String = if (annotation.fieldNameToPrefix) {
-                    val joiner = annotation.nameJoiner.objectInstance!!
-                    { suffix -> parameterNameConverter(joiner.join(name, suffix)) }
+                val converter: ParameterNameConverter = if (annotation.fieldNameToPrefix) {
+                    parameterNameConverter.nest(name, annotation.nameJoiner.objectInstance!!)
                 } else {
                     parameterNameConverter
                 }
@@ -38,7 +37,7 @@ internal class BucketGenerator(
                 it.index,
                 it.annotations,
                 it.isOptional,
-                parameterNameConverter(name),
+                parameterNameConverter.convert(name),
                 it.type.classifier as KClass<*>
             )
         }
