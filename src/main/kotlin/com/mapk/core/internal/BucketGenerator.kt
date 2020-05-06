@@ -36,9 +36,7 @@ internal class BucketGenerator(
     }
 
     fun generate(adaptor: ArgumentAdaptor): ArgumentBucket =
-        ArgumentBucket(
-            parameters, originalValueArray.clone(), originalInitializationStatus.clone(), binders, adaptor
-        )
+        ArgumentBucket(parameters, originalValueArray.clone(), originalInitializationStatus.clone(), binders, adaptor)
 }
 
 private fun KParameter.toArgumentBinder(parameterNameConverter: ParameterNameConverter): ArgumentBinder {
