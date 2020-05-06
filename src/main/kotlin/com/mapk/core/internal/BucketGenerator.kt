@@ -43,11 +43,13 @@ private fun KParameter.toArgumentBinder(parameterNameConverter: ParameterNameCon
     val name = getAliasOrName()!!
 
     return findAnnotation<KParameterFlatten>()?.let { annotation ->
-        // 名前の変換処理、結合が必要な場合はインスタンスを持ってきて対応する
+        // 名前の変換処理
         val converter: ParameterNameConverter = if (annotation.fieldNameToPrefix) {
+            // 結合が必要な場合は結合機能のインスタンスを持ってきて対応する
             parameterNameConverter.nest(name, annotation.nameJoiner.objectInstance!!)
         } else {
-            parameterNameConverter
+            // プレフィックスを要求しない場合は全てsimpleでマップするように修正
+            parameterNameConverter.toSimple()
         }
 
         ArgumentBinder.Function((type.classifier as KClass<*>).toKConstructor(converter), index, annotations)
