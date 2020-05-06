@@ -35,6 +35,8 @@ internal sealed class ArgumentBinder(val annotations: List<Annotation>) {
         override val index: Int,
         annotations: List<Annotation>
     ) : ArgumentBinder(annotations) {
+        val requiredParameters: List<ValueParameter<*>> = function.requiredParameters
+
         override fun bindArgument(adaptor: ArgumentAdaptor, valueArray: Array<Any?>): Boolean {
             val temp = function.call(adaptor)
 
