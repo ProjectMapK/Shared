@@ -1,4 +1,4 @@
-package com.mapk.core
+package com.mapk.core.internal
 
 import com.mapk.annotations.KParameterAlias
 import com.mapk.annotations.KUseDefaultArgument

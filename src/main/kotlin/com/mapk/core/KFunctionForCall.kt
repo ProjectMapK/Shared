@@ -1,6 +1,9 @@
 package com.mapk.core
 
 import com.mapk.annotations.KConstructor
+import com.mapk.core.internal.BucketGenerator
+import com.mapk.core.internal.ParameterNameConverter
+import com.mapk.core.internal.isUseDefaultArgument
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -39,7 +42,12 @@ class KFunctionForCall<T> internal constructor(
         function.isAccessible = true
 
         val filteredParameters = parameters.filter { it.kind == KParameter.Kind.VALUE && !it.isUseDefaultArgument() }
-        bucketGenerator = BucketGenerator(parameters, filteredParameters, instance, parameterNameConverter)
+        bucketGenerator = BucketGenerator(
+            parameters,
+            filteredParameters,
+            instance,
+            parameterNameConverter
+        )
 
         requiredParameters = bucketGenerator.valueParameters
         requiredParametersMap = requiredParameters.associateBy { it.name }

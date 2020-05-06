@@ -2,6 +2,8 @@ package com.mapk.core
 
 import com.mapk.annotations.KParameterAlias
 import com.mapk.annotations.KUseDefaultArgument
+import com.mapk.core.internal.getAliasOrName
+import com.mapk.core.internal.isUseDefaultArgument
 import io.mockk.every
 import io.mockk.mockk
 import java.lang.IllegalArgumentException

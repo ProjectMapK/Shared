@@ -1,6 +1,9 @@
-package com.mapk.core
+package com.mapk.core.internal
 
 import com.mapk.annotations.KParameterFlatten
+import com.mapk.core.ArgumentAdaptor
+import com.mapk.core.ValueParameter
+import com.mapk.core.toKConstructor
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
@@ -32,9 +35,10 @@ internal class BucketGenerator(
         }
     }
 
-    fun generate(adaptor: ArgumentAdaptor): ArgumentBucket = ArgumentBucket(
-        parameters, originalValueArray.clone(), originalInitializationStatus.clone(), binders, adaptor
-    )
+    fun generate(adaptor: ArgumentAdaptor): ArgumentBucket =
+        ArgumentBucket(
+            parameters, originalValueArray.clone(), originalInitializationStatus.clone(), binders, adaptor
+        )
 }
 
 private fun KParameter.toArgumentBinder(parameterNameConverter: ParameterNameConverter): ArgumentBinder {

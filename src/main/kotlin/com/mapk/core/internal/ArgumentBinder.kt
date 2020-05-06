@@ -1,6 +1,9 @@
-package com.mapk.core
+package com.mapk.core.internal
 
 import com.mapk.annotations.KParameterRequireNonNull
+import com.mapk.core.ArgumentAdaptor
+import com.mapk.core.KFunctionForCall
+import com.mapk.core.ValueParameter
 import kotlin.reflect.KClass
 
 internal sealed class ArgumentBinder(val annotations: List<Annotation>) {
@@ -19,7 +22,8 @@ internal sealed class ArgumentBinder(val annotations: List<Annotation>) {
         override val isOptional: Boolean,
         override val name: String,
         override val requiredClazz: KClass<T>
-    ) : ArgumentBinder(annotations), ValueParameter<T> {
+    ) : ArgumentBinder(annotations),
+        ValueParameter<T> {
         override fun bindArgument(adaptor: ArgumentAdaptor, valueArray: Array<Any?>): Boolean {
             return if (adaptor.isInitialized(name)) {
                 valueArray[index] = adaptor.readout(name)

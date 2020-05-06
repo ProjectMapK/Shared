@@ -1,4 +1,4 @@
-package com.mapk.core
+package com.mapk.core.internal
 
 internal class InitializationStatusManager(private val initializationStatus: Array<Boolean>) {
     private val size = initializationStatus.size
