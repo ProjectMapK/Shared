@@ -10,12 +10,18 @@ import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 import org.jetbrains.annotations.TestOnly
 
-class KFunctionForCall<T>(
+class KFunctionForCall<T> internal constructor(
     @TestOnly
     internal val function: KFunction<T>,
-    parameterNameConverter: (String) -> String,
+    parameterNameConverter: ParameterNameConverter,
     instance: Any? = null
 ) {
+    constructor(function: KFunction<T>, parameterNameConverter: (String) -> String, instance: Any? = null) : this(
+        function,
+        ParameterNameConverter.Simple(parameterNameConverter),
+        instance
+    )
+
     @TestOnly
     internal val parameters: List<KParameter> = function.parameters
 
@@ -48,7 +54,7 @@ class KFunctionForCall<T>(
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: (String) -> String): KFunctionForCall<T> {
+internal fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: ParameterNameConverter): KFunctionForCall<T> {
     val factoryConstructor: List<KFunctionForCall<T>> =
         this.companionObjectInstance?.let { companionObject ->
             companionObject::class.functions
@@ -66,3 +72,7 @@ fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: (String) -> Strin
 
     throw IllegalArgumentException("Find multiple target.")
 }
+
+@Suppress("UNCHECKED_CAST")
+fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: (String) -> String): KFunctionForCall<T> =
+    this.toKConstructor(ParameterNameConverter.Simple(parameterNameConverter))
