@@ -18,6 +18,7 @@ class KFunctionForCall<T>(
     @TestOnly
     internal val parameters: List<KParameter> = function.parameters
 
+    // 上は外部への公開用、下はArgumentAdaptor生成用
     val requiredParameters: List<ValueParameter<*>>
     private val requiredParametersMap: Map<String, ValueParameter<*>>
 
@@ -31,10 +32,10 @@ class KFunctionForCall<T>(
         function.isAccessible = true
 
         val filteredParameters = parameters.filter { it.kind == KParameter.Kind.VALUE && !it.isUseDefaultArgument() }
-        requiredParameters = filteredParameters.map { ValueParameterImpl.newInstance(it, parameterNameConverter) }
-        requiredParametersMap = requiredParameters.associateBy { it.name }
-
         bucketGenerator = BucketGenerator(parameters, filteredParameters, instance, parameterNameConverter)
+
+        requiredParameters = bucketGenerator.valueParameters
+        requiredParametersMap = requiredParameters.associateBy { it.name }
     }
 
     fun getArgumentAdaptor(): ArgumentAdaptor = ArgumentAdaptor(requiredParametersMap)
