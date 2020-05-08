@@ -88,16 +88,19 @@ class KFunctionForCall<T> internal constructor(
 
 @Suppress("UNCHECKED_CAST")
 internal fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: ParameterNameConverter): KFunctionForCall<T> {
-    val factoryConstructor: List<KFunctionForCall<T>> =
-        this.companionObjectInstance?.let { companionObject ->
-            companionObject::class.functions
-                .filter { it.annotations.any { annotation -> annotation is KConstructor } }
-                .map { KFunctionForCall(it, parameterNameConverter, companionObject) as KFunctionForCall<T> }
-        } ?: emptyList()
+    val constructors = ArrayList<KFunctionForCall<T>>()
 
-    val constructors: List<KFunctionForCall<T>> = factoryConstructor + this.constructors
+    this.companionObjectInstance?.let { companionObject ->
+        companionObject::class.functions
+            .filter { it.annotations.any { annotation -> annotation is KConstructor } }
+            .forEach {
+                constructors.add(KFunctionForCall(it, parameterNameConverter, companionObject) as KFunctionForCall<T>)
+            }
+    }
+
+    this.constructors
         .filter { it.annotations.any { annotation -> annotation is KConstructor } }
-        .map { KFunctionForCall(it, parameterNameConverter) }
+        .forEach { constructors.add(KFunctionForCall(it, parameterNameConverter)) }
 
     if (constructors.size == 1) return constructors.single()
 
