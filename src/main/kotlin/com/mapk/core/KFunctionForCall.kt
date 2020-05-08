@@ -11,11 +11,11 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.companionObjectInstance
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 import org.jetbrains.annotations.TestOnly
-import kotlin.reflect.full.findAnnotation
 
 class KFunctionForCall<T> internal constructor(
     @TestOnly
@@ -62,7 +62,15 @@ class KFunctionForCall<T> internal constructor(
             }
             acc
         }
-        requiredParametersMap = requiredParameters.associateBy { it.name }
+
+        requiredParametersMap = HashMap<String, ValueParameter<*>>().apply {
+            requiredParameters.forEach {
+                if (containsKey(it.name))
+                    throw IllegalArgumentException("The argument name ${it.name} is duplicated.")
+
+                this[it.name] = it
+            }
+        }
     }
 
     fun getArgumentAdaptor(): ArgumentAdaptor = ArgumentAdaptor(requiredParametersMap)
