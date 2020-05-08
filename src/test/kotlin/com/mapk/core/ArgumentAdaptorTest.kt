@@ -41,6 +41,14 @@ class ArgumentAdaptorTest {
                 adaptor.putIfAbsent(keys[1], null)
                 assertFalse(adaptor.isInitialized(keys[0]))
             }
+
+            @Test
+            @DisplayName("2重バインドテスト")
+            fun isDuplicateKey() {
+                adaptor.putIfAbsent(keys[0], keys[0])
+                adaptor.putIfAbsent(keys[0], keys[1])
+                assertEquals(keys[0], adaptor.readout(keys[0]))
+            }
         }
     }
 
