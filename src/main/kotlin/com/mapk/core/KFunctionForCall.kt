@@ -49,11 +49,7 @@ class KFunctionForCall<T> internal constructor(
             .filter { it.kind == KParameter.Kind.VALUE && !it.isUseDefaultArgument() }
             .map { it.toArgumentBinder(parameterNameConverter) }
 
-        bucketGenerator = BucketGenerator(
-            parameters,
-            binders,
-            instance
-        )
+        bucketGenerator = BucketGenerator(parameters, binders, instance)
 
         val tempList = ArrayList<ValueParameter<*>>(binders.size)
         val tempMap = HashMap<String, ValueParameter<*>>(binders.size)
