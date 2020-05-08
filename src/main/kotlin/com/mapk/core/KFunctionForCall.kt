@@ -55,22 +55,31 @@ class KFunctionForCall<T> internal constructor(
             instance
         )
 
-        requiredParameters = binders.fold(ArrayList()) { acc, elm ->
-            when (elm) {
-                is ArgumentBinder.Value<*> -> acc.add(elm)
-                is ArgumentBinder.Function -> acc.addAll(elm.requiredParameters)
-            }
-            acc
-        }
+        val tempList = ArrayList<ValueParameter<*>>(binders.size)
+        val tempMap = HashMap<String, ValueParameter<*>>(binders.size)
 
-        requiredParametersMap = HashMap<String, ValueParameter<*>>().apply {
-            requiredParameters.forEach {
-                if (containsKey(it.name))
-                    throw IllegalArgumentException("The argument name ${it.name} is duplicated.")
-
-                this[it.name] = it
+        binders.forEach { binder ->
+            when (binder) {
+                is ArgumentBinder.Value<*> -> addArgs(binder, tempList, tempMap)
+                is ArgumentBinder.Function -> binder.requiredParameters.forEach {
+                    addArgs(it, tempList, tempMap)
+                }
             }
         }
+
+        requiredParameters = tempList
+        requiredParametersMap = tempMap
+    }
+
+    private fun addArgs(
+        parameter: ValueParameter<*>,
+        tempList: ArrayList<ValueParameter<*>>,
+        tempMap: MutableMap<String, ValueParameter<*>>
+    ) {
+        if (tempMap.containsKey(parameter.name))
+            throw IllegalArgumentException("The argument name ${parameter.name} is duplicated.")
+        tempMap[parameter.name] = parameter
+        tempList.add(parameter)
     }
 
     fun getArgumentAdaptor(): ArgumentAdaptor = ArgumentAdaptor(requiredParametersMap)
