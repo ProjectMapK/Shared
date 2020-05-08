@@ -15,6 +15,7 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.jvmName
 import org.jetbrains.annotations.TestOnly
 
 class KFunctionForCall<T> internal constructor(
@@ -106,7 +107,7 @@ internal fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: Paramete
 
     if (constructors.isEmpty()) return KFunctionForCall(this.primaryConstructor!!, parameterNameConverter)
 
-    throw IllegalArgumentException("Find multiple target.")
+    throw IllegalArgumentException("${this.jvmName} has multiple ${KConstructor::class.jvmName}.")
 }
 
 @Suppress("UNCHECKED_CAST")
