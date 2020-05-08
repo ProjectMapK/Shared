@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 @DisplayName("ArgumentAdaptorのテスト")
 class ArgumentAdaptorTest {
@@ -59,6 +60,22 @@ class ArgumentAdaptorTest {
         fun isFullInitialized() {
             keys.forEach { adaptor.putIfAbsent(it, it) }
             assertTrue(adaptor.isFullInitialized())
+        }
+    }
+
+    @Nested
+    @DisplayName("存在しないkeyの読み出しテスト")
+    inner class NotContainsKeyTest {
+        @Test
+        @DisplayName("isInitializedのテスト")
+        fun isInitialized() {
+            assertThrows<IllegalArgumentException> { adaptor.isInitialized("hoge") }
+        }
+
+        @Test
+        @DisplayName("putIfAbsentのテスト")
+        fun putIfAbsent() {
+            assertThrows<IllegalArgumentException> { adaptor.putIfAbsent("hoge", "hoge") }
         }
     }
 
