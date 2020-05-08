@@ -41,4 +41,23 @@ class ArgumentAdaptorTest {
             }
         }
     }
+
+    @Nested
+    @DisplayName("完全初期化チェックのテスト")
+    inner class IsFullInitializedTest {
+        @Test
+        @DisplayName("完全初期化していない場合")
+        fun isNotFullInitialized() {
+            adaptor.putIfAbsent(keys[0], keys[0])
+            adaptor.putIfAbsent(keys[1], keys[1])
+            assertFalse(adaptor.isFullInitialized())
+        }
+
+        @Test
+        @DisplayName("完全初期化した場合")
+        fun isFullInitialized() {
+            keys.forEach { adaptor.putIfAbsent(it, it) }
+            assertTrue(adaptor.isFullInitialized())
+        }
+    }
 }
