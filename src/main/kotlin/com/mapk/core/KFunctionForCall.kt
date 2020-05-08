@@ -1,8 +1,11 @@
 package com.mapk.core
 
 import com.mapk.annotations.KConstructor
+import com.mapk.annotations.KParameterFlatten
+import com.mapk.core.internal.ArgumentBinder
 import com.mapk.core.internal.BucketGenerator
 import com.mapk.core.internal.ParameterNameConverter
+import com.mapk.core.internal.getAliasOrName
 import com.mapk.core.internal.isUseDefaultArgument
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -12,6 +15,7 @@ import kotlin.reflect.full.functions
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 import org.jetbrains.annotations.TestOnly
+import kotlin.reflect.full.findAnnotation
 
 class KFunctionForCall<T> internal constructor(
     @TestOnly
@@ -41,15 +45,23 @@ class KFunctionForCall<T> internal constructor(
         // この関数には確実にアクセスするためアクセシビリティ書き換え
         function.isAccessible = true
 
-        val filteredParameters = parameters.filter { it.kind == KParameter.Kind.VALUE && !it.isUseDefaultArgument() }
+        val binders: List<ArgumentBinder> = parameters
+            .filter { it.kind == KParameter.Kind.VALUE && !it.isUseDefaultArgument() }
+            .map { it.toArgumentBinder(parameterNameConverter) }
+
         bucketGenerator = BucketGenerator(
             parameters,
-            filteredParameters,
-            instance,
-            parameterNameConverter
+            binders,
+            instance
         )
 
-        requiredParameters = bucketGenerator.valueParameters
+        requiredParameters = binders.fold(ArrayList()) { acc, elm ->
+            when (elm) {
+                is ArgumentBinder.Value<*> -> acc.add(elm)
+                is ArgumentBinder.Function -> acc.addAll(elm.requiredParameters)
+            }
+            acc
+        }
         requiredParametersMap = requiredParameters.associateBy { it.name }
     }
 
@@ -84,3 +96,26 @@ internal fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: Paramete
 @Suppress("UNCHECKED_CAST")
 fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: (String) -> String): KFunctionForCall<T> =
     this.toKConstructor(ParameterNameConverter.Simple(parameterNameConverter))
+
+private fun KParameter.toArgumentBinder(parameterNameConverter: ParameterNameConverter): ArgumentBinder {
+    val name = getAliasOrName()!!
+
+    return findAnnotation<KParameterFlatten>()?.let { annotation ->
+        // 名前の変換処理
+        val converter: ParameterNameConverter = if (annotation.fieldNameToPrefix) {
+            // 結合が必要な場合は結合機能のインスタンスを持ってきて対応する
+            parameterNameConverter.nest(name, annotation.nameJoiner.objectInstance!!)
+        } else {
+            // プレフィックスを要求しない場合は全てsimpleでマップするように修正
+            parameterNameConverter.toSimple()
+        }
+
+        ArgumentBinder.Function((type.classifier as KClass<*>).toKConstructor(converter), index, annotations)
+    } ?: ArgumentBinder.Value(
+        index,
+        annotations,
+        isOptional,
+        parameterNameConverter.convert(name),
+        type.classifier as KClass<*>
+    )
+}
