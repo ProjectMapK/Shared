@@ -2,6 +2,7 @@ package com.mapk.core
 
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
@@ -59,5 +60,12 @@ class ArgumentAdaptorTest {
             keys.forEach { adaptor.putIfAbsent(it, it) }
             assertTrue(adaptor.isFullInitialized())
         }
+    }
+
+    @Test
+    @DisplayName("読み出しテスト")
+    fun readoutTest() {
+        keys.forEach { adaptor.putIfAbsent(it, it) }
+        keys.forEach { assertEquals(it, adaptor.readout(it)) }
     }
 }
