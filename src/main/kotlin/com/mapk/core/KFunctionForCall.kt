@@ -15,6 +15,7 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.jvmName
 import org.jetbrains.annotations.TestOnly
 
 class KFunctionForCall<T> internal constructor(
@@ -49,28 +50,33 @@ class KFunctionForCall<T> internal constructor(
             .filter { it.kind == KParameter.Kind.VALUE && !it.isUseDefaultArgument() }
             .map { it.toArgumentBinder(parameterNameConverter) }
 
-        bucketGenerator = BucketGenerator(
-            parameters,
-            binders,
-            instance
-        )
+        bucketGenerator = BucketGenerator(parameters, binders, instance)
 
-        requiredParameters = binders.fold(ArrayList()) { acc, elm ->
-            when (elm) {
-                is ArgumentBinder.Value<*> -> acc.add(elm)
-                is ArgumentBinder.Function -> acc.addAll(elm.requiredParameters)
-            }
-            acc
-        }
+        val tempList = ArrayList<ValueParameter<*>>(binders.size)
+        val tempMap = HashMap<String, ValueParameter<*>>(binders.size)
 
-        requiredParametersMap = HashMap<String, ValueParameter<*>>().apply {
-            requiredParameters.forEach {
-                if (containsKey(it.name))
-                    throw IllegalArgumentException("The argument name ${it.name} is duplicated.")
-
-                this[it.name] = it
+        binders.forEach { binder ->
+            when (binder) {
+                is ArgumentBinder.Value<*> -> addArgs(binder, tempList, tempMap)
+                is ArgumentBinder.Function -> binder.requiredParameters.forEach {
+                    addArgs(it, tempList, tempMap)
+                }
             }
         }
+
+        requiredParameters = tempList
+        requiredParametersMap = tempMap
+    }
+
+    private fun addArgs(
+        parameter: ValueParameter<*>,
+        tempList: ArrayList<ValueParameter<*>>,
+        tempMap: MutableMap<String, ValueParameter<*>>
+    ) {
+        if (tempMap.containsKey(parameter.name))
+            throw IllegalArgumentException("The argument name ${parameter.name} is duplicated.")
+        tempMap[parameter.name] = parameter
+        tempList.add(parameter)
     }
 
     fun getArgumentAdaptor(): ArgumentAdaptor = ArgumentAdaptor(requiredParametersMap)
@@ -83,22 +89,25 @@ class KFunctionForCall<T> internal constructor(
 
 @Suppress("UNCHECKED_CAST")
 internal fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: ParameterNameConverter): KFunctionForCall<T> {
-    val factoryConstructor: List<KFunctionForCall<T>> =
-        this.companionObjectInstance?.let { companionObject ->
-            companionObject::class.functions
-                .filter { it.annotations.any { annotation -> annotation is KConstructor } }
-                .map { KFunctionForCall(it, parameterNameConverter, companionObject) as KFunctionForCall<T> }
-        } ?: emptyList()
+    val constructors = ArrayList<KFunctionForCall<T>>()
 
-    val constructors: List<KFunctionForCall<T>> = factoryConstructor + this.constructors
+    this.companionObjectInstance?.let { companionObject ->
+        companionObject::class.functions
+            .filter { it.annotations.any { annotation -> annotation is KConstructor } }
+            .forEach {
+                constructors.add(KFunctionForCall(it, parameterNameConverter, companionObject) as KFunctionForCall<T>)
+            }
+    }
+
+    this.constructors
         .filter { it.annotations.any { annotation -> annotation is KConstructor } }
-        .map { KFunctionForCall(it, parameterNameConverter) }
+        .forEach { constructors.add(KFunctionForCall(it, parameterNameConverter)) }
 
     if (constructors.size == 1) return constructors.single()
 
     if (constructors.isEmpty()) return KFunctionForCall(this.primaryConstructor!!, parameterNameConverter)
 
-    throw IllegalArgumentException("Find multiple target.")
+    throw IllegalArgumentException("${this.jvmName} has multiple ${KConstructor::class.jvmName}.")
 }
 
 @Suppress("UNCHECKED_CAST")
