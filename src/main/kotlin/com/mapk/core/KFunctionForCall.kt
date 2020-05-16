@@ -10,9 +10,7 @@ import com.mapk.core.internal.isUseDefaultArgument
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
-import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.functions
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.jvmName
@@ -91,17 +89,15 @@ class KFunctionForCall<T> internal constructor(
 internal fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: ParameterNameConverter): KFunctionForCall<T> {
     val constructors = ArrayList<KFunctionForCall<T>>()
 
-    this.companionObjectInstance?.let { companionObject ->
-        companionObject::class.functions
-            .filter { it.annotations.any { annotation -> annotation is KConstructor } }
-            .forEach {
-                constructors.add(KFunctionForCall(it, parameterNameConverter, companionObject) as KFunctionForCall<T>)
-            }
+    this.getAnnotatedFunctionsFromCompanionObject<KConstructor>()?.let { (instance, functions) ->
+        functions.forEach {
+            constructors.add(KFunctionForCall(it as KFunction<T>, parameterNameConverter, instance))
+        }
     }
 
-    this.constructors
-        .filter { it.annotations.any { annotation -> annotation is KConstructor } }
-        .forEach { constructors.add(KFunctionForCall(it, parameterNameConverter)) }
+    this.constructors.getAnnotatedFunctions<KConstructor, T>().forEach {
+        constructors.add(KFunctionForCall(it, parameterNameConverter))
+    }
 
     if (constructors.size == 1) return constructors.single()
 
@@ -127,12 +123,12 @@ private fun KParameter.toArgumentBinder(parameterNameConverter: ParameterNameCon
             parameterNameConverter.toSimple()
         }
 
-        ArgumentBinder.Function((type.classifier as KClass<*>).toKConstructor(converter), index, annotations)
+        ArgumentBinder.Function(getKClass().toKConstructor(converter), index, annotations)
     } ?: ArgumentBinder.Value(
         index,
         annotations,
         isOptional,
         parameterNameConverter.convert(name),
-        type.classifier as KClass<*>
+        getKClass()
     )
 }
