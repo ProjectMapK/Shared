@@ -89,7 +89,7 @@ class KFunctionForCall<T> internal constructor(
 internal fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: ParameterNameConverter): KFunctionForCall<T> {
     val constructors = ArrayList<KFunctionForCall<T>>()
 
-    this.getAnnotatedFunctionFromCompanionObject<KConstructor>()?.let { (instance, functions) ->
+    this.getAnnotatedFunctionsFromCompanionObject<KConstructor>()?.let { (instance, functions) ->
         functions.forEach {
             constructors.add(KFunctionForCall(it as KFunction<T>, parameterNameConverter, instance))
         }
