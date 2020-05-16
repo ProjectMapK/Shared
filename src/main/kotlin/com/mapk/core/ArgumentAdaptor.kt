@@ -18,6 +18,12 @@ class ArgumentAdaptor(private val requiredParameters: Map<String, ValueParameter
         }
     }
 
+    fun forcePut(key: String, value: Any?) {
+        if (value != null || requiredParameters.getValue(key).isNullable) {
+            argumentMap[key] = value
+        }
+    }
+
     // 事前に存在チェックはやるものと仮定してここでは読み出しだけ実装
     internal fun readout(key: String): Any? = argumentMap[key]
 }
