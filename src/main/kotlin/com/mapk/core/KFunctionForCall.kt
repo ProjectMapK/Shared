@@ -95,9 +95,9 @@ internal fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: Paramete
         }
     }
 
-    this.constructors
-        .filter { it.annotations.any { annotation -> annotation is KConstructor } }
-        .forEach { constructors.add(KFunctionForCall(it, parameterNameConverter)) }
+    this.constructors.getAnnotatedFunctions<KConstructor, T>().forEach {
+        constructors.add(KFunctionForCall(it, parameterNameConverter))
+    }
 
     if (constructors.size == 1) return constructors.single()
 
