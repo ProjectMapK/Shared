@@ -13,7 +13,7 @@ class ArgumentAdaptor(private val requiredParameters: Map<String, ValueParameter
     }
 
     fun putIfAbsent(key: String, value: Any?) {
-        if (!isInitialized(key) && !(!requiredParameters.getValue(key).isNullable && value == null)) {
+        if (!isInitialized(key) && (value != null || requiredParameters.getValue(key).isNullable)) {
             argumentMap[key] = value
         }
     }
