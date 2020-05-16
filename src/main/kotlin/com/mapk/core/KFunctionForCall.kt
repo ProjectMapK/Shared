@@ -10,9 +10,7 @@ import com.mapk.core.internal.isUseDefaultArgument
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
-import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.functions
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.jvmName
@@ -91,12 +89,8 @@ class KFunctionForCall<T> internal constructor(
 internal fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: ParameterNameConverter): KFunctionForCall<T> {
     val constructors = ArrayList<KFunctionForCall<T>>()
 
-    this.companionObjectInstance?.let { companionObject ->
-        companionObject::class.functions
-            .filter { it.annotations.any { annotation -> annotation is KConstructor } }
-            .forEach {
-                constructors.add(KFunctionForCall(it, parameterNameConverter, companionObject) as KFunctionForCall<T>)
-            }
+    this.getAnnotatedFunctionFromCompanionObject<KConstructor>()?.forEach { (function, instance) ->
+        constructors.add(KFunctionForCall(function as KFunction<T>, parameterNameConverter, instance))
     }
 
     this.constructors
