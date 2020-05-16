@@ -75,4 +75,14 @@ class FunctionsTest {
             assertTrue(names.contains(result.second[1].name))
         }
     }
+
+    data class InnerClass(val arg: Int)
+    data class DataClass(val innerClass: InnerClass)
+
+    @Test
+    @DisplayName("パラメータからの型取得テスト")
+    fun getKClassTest() {
+        val param = ::DataClass.parameters.single()
+        assertEquals(InnerClass::class, param.getKClass())
+    }
 }
