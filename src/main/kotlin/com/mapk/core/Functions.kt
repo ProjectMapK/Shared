@@ -17,3 +17,7 @@ inline fun <reified A : Annotation> KClass<*>.getAnnotatedFunctionFromCompanionO
         }
     }
 }
+
+inline fun <reified A : Annotation, T : Any> Collection<KFunction<T>>.getAnnotatedFunctions(): List<KFunction<T>> {
+    return filter { function -> function.annotations.any { it is A } }
+}
