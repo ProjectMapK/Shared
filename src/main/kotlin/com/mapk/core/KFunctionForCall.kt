@@ -123,12 +123,12 @@ private fun KParameter.toArgumentBinder(parameterNameConverter: ParameterNameCon
             parameterNameConverter.toSimple()
         }
 
-        ArgumentBinder.Function((type.classifier as KClass<*>).toKConstructor(converter), index, annotations)
+        ArgumentBinder.Function(getKClass().toKConstructor(converter), index, annotations)
     } ?: ArgumentBinder.Value(
         index,
         annotations,
         isOptional,
         parameterNameConverter.convert(name),
-        type.classifier as KClass<*>
+        getKClass()
     )
 }
