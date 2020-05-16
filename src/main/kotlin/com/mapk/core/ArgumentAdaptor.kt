@@ -18,6 +18,15 @@ class ArgumentAdaptor(private val requiredParameters: Map<String, ValueParameter
         }
     }
 
+    fun putIfAbsent(key: String, consumer: () -> Any?) {
+        if (isInitialized(key)) return
+
+        val value = consumer()
+        if (value != null || requiredParameters.getValue(key).isNullable) {
+            argumentMap[key] = value
+        }
+    }
+
     fun forcePut(key: String, value: Any?) {
         if (value != null || requiredParameters.getValue(key).isNullable) {
             argumentMap[key] = value
