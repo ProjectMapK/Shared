@@ -24,8 +24,9 @@ internal sealed class ArgumentBinder(val annotations: List<Annotation>) {
         override val requiredClazz: KClass<T>
     ) : ArgumentBinder(annotations), ValueParameter<T> {
         override fun bindArgument(adaptor: ArgumentAdaptor, valueArray: Array<Any?>): Boolean {
-            return if (adaptor.isInitialized(name)) {
-                valueArray[index] = adaptor.readout(name)
+            val value = adaptor.readout(name)
+            return if (value != null || adaptor.isInitialized(name)) {
+                valueArray[index] = value
                 true
             } else {
                 false
