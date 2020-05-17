@@ -4,7 +4,6 @@ import com.mapk.core.ArgumentAdaptor
 import java.util.Objects
 import kotlin.reflect.KParameter
 
-// TODO: 初期化の効率化方法の検討他
 internal class ArgumentBucket(
     private val keyList: List<KParameter>,
     val valueArray: Array<Any?>,
@@ -17,35 +16,42 @@ internal class ArgumentBucket(
         override var value: Any?
     ) : Map.Entry<KParameter, Any?>
 
-    private val initializationStatusManager = InitializationStatusManager(initializationStatus)
+    private val initializationStatuses: List<Boolean>
     val isInitialized: Boolean
     override val size: Int
 
     init {
+        var count: Int = if (initializationStatus[0]) 1 else 0
+
         argumentBinders.forEach {
             val result = it.bindArgument(adaptor, valueArray)
-            if (result) initializationStatusManager.put(it.index)
+            if (result) {
+                count++
+                initializationStatus[it.index] = true
+            }
         }
 
-        isInitialized = initializationStatusManager.isFullInitialized
-        size = initializationStatusManager.count
+        initializationStatuses = initializationStatus.toList()
+        isInitialized = count == initializationStatus.size
+        size = count
     }
 
-    override fun containsKey(key: KParameter): Boolean = initializationStatusManager.isInitialized(key.index)
+    override fun containsKey(key: KParameter): Boolean = initializationStatuses[key.index]
 
     override fun containsValue(value: Any?): Boolean = valueArray.any { Objects.equals(value, it) }
 
     override fun get(key: KParameter): Any? = valueArray[key.index]
 
-    override fun isEmpty(): Boolean = initializationStatusManager.count == 0
+    override fun isEmpty(): Boolean = size == 0
 
+    // NOTE: 本来であれば生成時に確定する内容だが、これらのメソッドは関数呼び出し時にアクセスされることが無いため、カスタムゲッターとしている
     override val entries: Set<Map.Entry<KParameter, Any?>>
         get() = keyList
-            .filter { initializationStatusManager.isInitialized(it.index) }
+            .filter { initializationStatuses[it.index] }
             .map { Entry(it, valueArray[it.index]) }
             .toSet()
     override val keys: Set<KParameter>
-        get() = keyList.filter { initializationStatusManager.isInitialized(it.index) }.toSet()
+        get() = keyList.filter { initializationStatuses[it.index] }.toSet()
     override val values: Collection<Any?>
-        get() = valueArray.filterIndexed { i, _ -> initializationStatusManager.isInitialized(i) }
+        get() = valueArray.filterIndexed { i, _ -> initializationStatuses[i] }
 }
