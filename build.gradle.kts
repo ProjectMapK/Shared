@@ -37,7 +37,7 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     // https://mvnrepository.com/artifact/io.mockk/mockk
-    testImplementation("io.mockk:mockk:1.9.3")
+    testImplementation("io.mockk:mockk:1.10.0")
 }
 
 tasks {
