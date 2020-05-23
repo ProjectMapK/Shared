@@ -22,7 +22,7 @@ class KFunctionForCall<T> internal constructor(
     parameterNameConverter: ParameterNameConverter,
     instance: Any? = null
 ) {
-    constructor(function: KFunction<T>, parameterNameConverter: (String) -> String, instance: Any? = null) : this(
+    constructor(function: KFunction<T>, parameterNameConverter: ((String) -> String)?, instance: Any? = null) : this(
         function,
         ParameterNameConverter.Simple(parameterNameConverter),
         instance
@@ -44,24 +44,25 @@ class KFunctionForCall<T> internal constructor(
         // この関数には確実にアクセスするためアクセシビリティ書き換え
         function.isAccessible = true
 
-        val binders: List<ArgumentBinder> = parameters
-            .filter { it.kind == KParameter.Kind.VALUE && !it.isUseDefaultArgument() }
-            .map { it.toArgumentBinder(parameterNameConverter) }
+        val tempBinders = ArrayList<ArgumentBinder>()
+        val tempList = ArrayList<ValueParameter<*>>()
+        val tempMap = HashMap<String, ValueParameter<*>>()
 
-        bucketGenerator = BucketGenerator(parameters, binders, instance)
+        parameters.forEach { param ->
+            if (param.kind == KParameter.Kind.VALUE && !param.isUseDefaultArgument()) {
+                val binder = param.toArgumentBinder(parameterNameConverter)
+                tempBinders.add(binder)
 
-        val tempList = ArrayList<ValueParameter<*>>(binders.size)
-        val tempMap = HashMap<String, ValueParameter<*>>(binders.size)
-
-        binders.forEach { binder ->
-            when (binder) {
-                is ArgumentBinder.Value<*> -> addArgs(binder, tempList, tempMap)
-                is ArgumentBinder.Function -> binder.requiredParameters.forEach {
-                    addArgs(it, tempList, tempMap)
+                when (binder) {
+                    is ArgumentBinder.Value<*> -> addArgs(binder, tempList, tempMap)
+                    is ArgumentBinder.Function -> binder.requiredParameters.forEach {
+                        addArgs(it, tempList, tempMap)
+                    }
                 }
             }
         }
 
+        bucketGenerator = BucketGenerator(parameters, tempBinders, instance)
         requiredParameters = tempList
         requiredParametersMap = tempMap
     }
@@ -107,7 +108,7 @@ internal fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: Paramete
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: (String) -> String): KFunctionForCall<T> =
+fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: ((String) -> String)?): KFunctionForCall<T> =
     this.toKConstructor(ParameterNameConverter.Simple(parameterNameConverter))
 
 private fun KParameter.toArgumentBinder(parameterNameConverter: ParameterNameConverter): ArgumentBinder {

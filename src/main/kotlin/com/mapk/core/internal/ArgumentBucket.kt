@@ -31,7 +31,7 @@ internal class ArgumentBucket(
             }
         }
 
-        initializationStatuses = initializationStatus.toList()
+        initializationStatuses = initializationStatus.asList()
         isInitialized = count == initializationStatus.size
         size = count
     }
