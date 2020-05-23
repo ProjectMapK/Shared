@@ -22,7 +22,7 @@ class KFunctionForCall<T> internal constructor(
     parameterNameConverter: ParameterNameConverter,
     instance: Any? = null
 ) {
-    constructor(function: KFunction<T>, parameterNameConverter: (String) -> String, instance: Any? = null) : this(
+    constructor(function: KFunction<T>, parameterNameConverter: ((String) -> String)?, instance: Any? = null) : this(
         function,
         ParameterNameConverter.Simple(parameterNameConverter),
         instance
@@ -108,7 +108,7 @@ internal fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: Paramete
 }
 
 @Suppress("UNCHECKED_CAST")
-fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: (String) -> String): KFunctionForCall<T> =
+fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: ((String) -> String)?): KFunctionForCall<T> =
     this.toKConstructor(ParameterNameConverter.Simple(parameterNameConverter))
 
 private fun KParameter.toArgumentBinder(parameterNameConverter: ParameterNameConverter): ArgumentBinder {
