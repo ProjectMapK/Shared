@@ -5,6 +5,7 @@ import com.mapk.core.internal.ArgumentBinder
 import com.mapk.core.internal.BucketGenerator
 import com.mapk.core.internal.ParameterNameConverter
 import com.mapk.core.internal.getAliasOrName
+import com.mapk.core.internal.getKConstructor
 import com.mapk.core.internal.isUseDefaultArgument
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
