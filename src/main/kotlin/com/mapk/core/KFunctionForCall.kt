@@ -1,19 +1,17 @@
 package com.mapk.core
 
-import com.mapk.annotations.KConstructor
 import com.mapk.annotations.KParameterFlatten
 import com.mapk.core.internal.ArgumentBinder
 import com.mapk.core.internal.BucketGenerator
 import com.mapk.core.internal.ParameterNameConverter
 import com.mapk.core.internal.getAliasOrName
+import com.mapk.core.internal.getKConstructor
 import com.mapk.core.internal.isUseDefaultArgument
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
-import kotlin.reflect.jvm.jvmName
 import org.jetbrains.annotations.TestOnly
 
 class KFunctionForCall<T> internal constructor(
@@ -86,30 +84,10 @@ class KFunctionForCall<T> internal constructor(
     }
 }
 
-@Suppress("UNCHECKED_CAST")
-internal fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: ParameterNameConverter): KFunctionForCall<T> {
-    val constructors = ArrayList<KFunctionForCall<T>>()
-
-    this.getAnnotatedFunctionsFromCompanionObject<KConstructor>()?.let { (instance, functions) ->
-        functions.forEach {
-            constructors.add(KFunctionForCall(it as KFunction<T>, parameterNameConverter, instance))
-        }
-    }
-
-    this.constructors.getAnnotatedFunctions<KConstructor, T>().forEach {
-        constructors.add(KFunctionForCall(it, parameterNameConverter))
-    }
-
-    if (constructors.size == 1) return constructors.single()
-
-    if (constructors.isEmpty()) return KFunctionForCall(this.primaryConstructor!!, parameterNameConverter)
-
-    throw IllegalArgumentException("${this.jvmName} has multiple ${KConstructor::class.jvmName}.")
-}
-
-@Suppress("UNCHECKED_CAST")
 fun <T : Any> KClass<T>.toKConstructor(parameterNameConverter: ((String) -> String)?): KFunctionForCall<T> =
-    this.toKConstructor(ParameterNameConverter.Simple(parameterNameConverter))
+    this.getKConstructor().let { (instance, function) ->
+        KFunctionForCall(function, ParameterNameConverter.Simple(parameterNameConverter), instance)
+    }
 
 private fun KParameter.toArgumentBinder(parameterNameConverter: ParameterNameConverter): ArgumentBinder {
     val name = getAliasOrName()!!
@@ -124,7 +102,9 @@ private fun KParameter.toArgumentBinder(parameterNameConverter: ParameterNameCon
             parameterNameConverter.toSimple()
         }
 
-        ArgumentBinder.Function(getKClass().toKConstructor(converter), index, annotations)
+        getKClass().getKConstructor().let { (instance, function) ->
+            ArgumentBinder.Function(KFunctionForCall(function, converter, instance), index, annotations)
+        }
     } ?: ArgumentBinder.Value(
         index,
         annotations,
