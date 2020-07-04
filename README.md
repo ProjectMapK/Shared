@@ -5,5 +5,5 @@
 
 A `Shared` module for ProjectMapK.
 ====
-You can use this module to easily make function calls by `Kotlin`'s `Reflection`.
+You can use this module to easily make function calls by `Kotlin`'s `Reflection`.  
 Also, you can use the features of ProjectMapK in this module.
