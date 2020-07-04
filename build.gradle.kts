@@ -58,6 +58,8 @@ tasks {
     }
     test {
         useJUnitPlatform()
+        // テスト終了時にjacocoのレポートを生成する
+        finalizedBy(jacocoTestReport)
     }
 
     jacocoTestReport {
