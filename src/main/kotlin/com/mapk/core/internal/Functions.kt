@@ -22,13 +22,11 @@ internal fun KParameter.getAliasOrName(): String? = findAnnotation<KParameterAli
  * デフォルト引数を用いるかチェックする関数
  */
 internal fun KParameter.isUseDefaultArgument(): Boolean {
-    if (annotations.any { it is KUseDefaultArgument }) {
-        if (!isOptional) throw IllegalArgumentException(
+    return annotations.any { it is KUseDefaultArgument }.apply {
+        if (this && !isOptional) throw IllegalArgumentException(
             "Find ${KUseDefaultArgument::class.jvmName}, but it's not has default argument."
         )
-        return true
     }
-    return false
 }
 
 @Suppress("UNCHECKED_CAST")
