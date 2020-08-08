@@ -1,14 +1,14 @@
 package com.mapk.core
 
 import com.mapk.annotations.KConstructor
-import kotlin.reflect.KFunction
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.primaryConstructor
-import kotlin.reflect.jvm.isAccessible
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.reflect.KFunction
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.jvm.isAccessible
 
 @Suppress("UNCHECKED_CAST", "unused")
 @DisplayName("クラスからのコンストラクタ抽出関連テスト")

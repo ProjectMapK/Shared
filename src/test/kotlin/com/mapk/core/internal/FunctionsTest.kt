@@ -4,8 +4,6 @@ import com.mapk.annotations.KParameterAlias
 import com.mapk.annotations.KUseDefaultArgument
 import io.mockk.every
 import io.mockk.mockk
-import java.lang.IllegalArgumentException
-import kotlin.reflect.KParameter
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -14,6 +12,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.reflect.KParameter
 
 @DisplayName("関数類のテスト")
 class FunctionsTest {
