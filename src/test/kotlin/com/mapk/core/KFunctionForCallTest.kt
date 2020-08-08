@@ -2,8 +2,6 @@ package com.mapk.core
 
 import io.mockk.spyk
 import io.mockk.verify
-import kotlin.reflect.KParameter
-import kotlin.reflect.full.functions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -11,6 +9,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import kotlin.reflect.KParameter
+import kotlin.reflect.full.functions
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class KFunctionForCallTest {

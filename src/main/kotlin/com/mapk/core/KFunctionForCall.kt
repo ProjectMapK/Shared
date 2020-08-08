@@ -7,12 +7,12 @@ import com.mapk.core.internal.ParameterNameConverter
 import com.mapk.core.internal.getAliasOrName
 import com.mapk.core.internal.getKConstructor
 import com.mapk.core.internal.isUseDefaultArgument
+import org.jetbrains.annotations.TestOnly
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.isAccessible
-import org.jetbrains.annotations.TestOnly
 
 class KFunctionForCall<T> internal constructor(
     @TestOnly

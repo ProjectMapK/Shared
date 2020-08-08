@@ -1,13 +1,13 @@
 package com.mapk.core
 
 import com.mapk.annotations.KConstructor
-import kotlin.reflect.full.companionObjectInstance
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import kotlin.reflect.full.companionObjectInstance
 
 @DisplayName("共通利用関数関連のテスト")
 class FunctionsTest {
