@@ -1,13 +1,13 @@
 plugins {
     id("maven")
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.3.72"
+    id("org.jetbrains.kotlin.jvm") version "1.4.0"
     id("org.jlleitschuh.gradle.ktlint") version "9.3.0"
     id("jacoco")
 }
 
 group = "com.mapk"
-version = "0.16"
+version = "0.17"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
