@@ -7,7 +7,7 @@ import kotlin.reflect.KParameter
 internal class ArgumentBucket(
     private val keyList: List<KParameter>,
     val valueArray: Array<Any?>,
-    initializationStatus: Array<Boolean>,
+    initializationStatus: BooleanArray,
     argumentBinders: List<ArgumentBinder>,
     adaptor: ArgumentAdaptor
 ) : Map<KParameter, Any?> {
