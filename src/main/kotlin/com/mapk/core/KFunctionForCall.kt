@@ -13,6 +13,7 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.javaConstructor
 
 class KFunctionForCall<T> internal constructor(
     @TestOnly
@@ -25,6 +26,10 @@ class KFunctionForCall<T> internal constructor(
         ParameterNameConverter.Simple(parameterNameConverter),
         instance
     )
+
+    internal val fullInitializedFunctionLambda: (Array<Any?>) -> T = function.javaConstructor?.let {
+        { values -> it.newInstance(*values) }
+    } ?: { function.call(*it) }
 
     @TestOnly
     internal val parameters: List<KParameter> = function.parameters
@@ -80,7 +85,7 @@ class KFunctionForCall<T> internal constructor(
 
     fun call(adaptor: ArgumentAdaptor): T {
         val bucket = bucketGenerator.generate(adaptor)
-        return if (bucket.isInitialized) function.call(*bucket.valueArray) else function.callBy(bucket)
+        return if (bucket.isInitialized) fullInitializedFunctionLambda(bucket.valueArray) else function.callBy(bucket)
     }
 }
 
