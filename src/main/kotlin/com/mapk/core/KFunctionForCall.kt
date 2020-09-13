@@ -27,6 +27,7 @@ class KFunctionForCall<T> internal constructor(
         instance
     )
 
+    @TestOnly
     internal val fullInitializedFunctionLambda: (Array<Any?>) -> T = function.javaConstructor?.let {
         { values -> it.newInstance(*values) }
     } ?: { function.call(*it) }
