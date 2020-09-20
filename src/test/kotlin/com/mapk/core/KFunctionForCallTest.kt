@@ -51,7 +51,6 @@ class KFunctionForCallTest {
         fun fromCompanionObject() {
             val function = Companion::class.functions
                 .first { it.name == (KFunctionForCallTest)::declaredOnCompanionObject.name }
-                .let { spyk(it) }
 
             val kFunctionForCall = KFunctionForCall(function, { it }, Companion)
 
@@ -60,7 +59,6 @@ class KFunctionForCallTest {
             adaptor.putIfAbsent("arg2", 2)
             val result = kFunctionForCall.call(adaptor)
             assertEquals("12", result)
-            verify(exactly = 1) { function.call(*anyVararg()) }
         }
 
         private fun func(key: String, value: String = "default"): Pair<String, String> = key to value
@@ -84,7 +82,6 @@ class KFunctionForCallTest {
         fun multipleCall() {
             val function = Companion::class.functions
                 .first { it.name == (KFunctionForCallTest)::declaredOnCompanionObject.name }
-                .let { spyk(it) }
 
             val kFunctionForCall = KFunctionForCall(function, { it }, Companion)
 
@@ -101,8 +98,6 @@ class KFunctionForCallTest {
                 .forEach { adaptor2.putIfAbsent(it.name!!, it.index + 1) }
             val result2 = kFunctionForCall.call(adaptor2)
             assertEquals("23", result2)
-
-            verify(exactly = 2) { function.call(*anyVararg()) }
         }
     }
 
