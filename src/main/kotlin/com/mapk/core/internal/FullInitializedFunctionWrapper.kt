@@ -17,7 +17,7 @@ internal class FullInitializedFunctionWrapper<T>(function: KFunction<T>, instanc
             instance != null -> {
                 val method = function.javaMethod!!
 
-                @Suppress("UNCHECKED_CAST") { method.invoke(it[0], *(it.copyOfRange(1, paramSize))) as T }
+                @Suppress("UNCHECKED_CAST") { method.invoke(instance, *(it.copyOfRange(1, paramSize))) as T }
             }
             else -> {
                 { function.call(*it) }
