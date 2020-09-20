@@ -3,6 +3,7 @@ package com.mapk.core
 import com.mapk.annotations.KParameterFlatten
 import com.mapk.core.internal.ArgumentBinder
 import com.mapk.core.internal.BucketGenerator
+import com.mapk.core.internal.FullInitializedFunctionWrapper
 import com.mapk.core.internal.ParameterNameConverter
 import com.mapk.core.internal.getAliasOrName
 import com.mapk.core.internal.getKConstructor
@@ -13,7 +14,6 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.isAccessible
-import kotlin.reflect.jvm.javaConstructor
 
 class KFunctionForCall<T> internal constructor(
     @TestOnly
@@ -28,9 +28,7 @@ class KFunctionForCall<T> internal constructor(
     )
 
     @TestOnly
-    internal val fullInitializedFunctionLambda: (Array<Any?>) -> T = function.javaConstructor?.let {
-        { values -> it.newInstance(*values) }
-    } ?: { function.call(*it) }
+    internal val fullInitializedWrapper: FullInitializedFunctionWrapper<T>
 
     @TestOnly
     internal val parameters: List<KParameter> = function.parameters
@@ -47,6 +45,8 @@ class KFunctionForCall<T> internal constructor(
 
         // この関数には確実にアクセスするためアクセシビリティ書き換え
         function.isAccessible = true
+
+        fullInitializedWrapper = FullInitializedFunctionWrapper(function, instance, parameters.size)
 
         val tempBinders = ArrayList<ArgumentBinder>()
         val tempList = ArrayList<ValueParameter<*>>()
@@ -86,7 +86,7 @@ class KFunctionForCall<T> internal constructor(
 
     fun call(adaptor: ArgumentAdaptor): T {
         val bucket = bucketGenerator.generate(adaptor)
-        return if (bucket.isInitialized) fullInitializedFunctionLambda(bucket.valueArray) else function.callBy(bucket)
+        return if (bucket.isInitialized) fullInitializedWrapper.call(bucket.valueArray) else function.callBy(bucket)
     }
 }
 
