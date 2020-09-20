@@ -9,7 +9,7 @@ internal class BucketGenerator(
     instance: Any?
 ) {
     private val originalValueArray: Array<Any?> = arrayOfNulls(parameters.size)
-    private val originalInitializationStatus: Array<Boolean> = Array(parameters.size) { false }
+    private val originalInitializationStatus: BooleanArray = BooleanArray(parameters.size)
 
     init {
         if (instance != null) {

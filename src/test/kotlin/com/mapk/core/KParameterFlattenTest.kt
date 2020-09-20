@@ -2,8 +2,6 @@ package com.mapk.core
 
 import com.mapk.annotations.KConstructor
 import com.mapk.annotations.KParameterFlatten
-import io.mockk.spyk
-import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
@@ -44,8 +42,7 @@ class KParameterFlattenTest {
 
     @Test
     fun test() {
-        val spiedFunction = spyk(::Dst)
-        val function = KFunctionForCall(spiedFunction, { it })
+        val function = KFunctionForCall(::Dst, { it })
 
         function.requiredParameters.forEach {
             assertTrue(expectedParams.contains(it.name))
@@ -59,6 +56,5 @@ class KParameterFlattenTest {
 
         val actual = function.call(adaptor)
         assertEquals(expected, actual)
-        verify(exactly = 1) { spiedFunction.call(*anyVararg()) }
     }
 }
