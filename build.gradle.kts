@@ -31,7 +31,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation(kotlin("reflect"))
     // https://mvnrepository.com/artifact/org.jetbrains/annotations
-    compileOnly(group = "org.jetbrains", name = "annotations", version = "19.0.0")
+    compileOnly(group = "org.jetbrains", name = "annotations", version = "20.1.0")
 
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter
     testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.6.2") {
