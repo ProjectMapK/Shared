@@ -2,7 +2,7 @@ plugins {
     id("maven")
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.4.21"
-    id("org.jlleitschuh.gradle.ktlint") version "9.3.0"
+    id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
     id("jacoco")
 }
 
