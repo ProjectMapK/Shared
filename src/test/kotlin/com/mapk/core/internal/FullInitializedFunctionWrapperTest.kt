@@ -31,7 +31,9 @@ class FullInitializedFunctionWrapperTest {
         val func = Dst::class.companionObject!!.functions.first { it.name == "of" }
         val instance = Dst::class.companionObjectInstance!!
         val fullInitializedFunctionWrapper = FullInitializedFunctionWrapper(
-            func, instance, 3
+            func,
+            instance,
+            3
         )
         assertEquals(expected, fullInitializedFunctionWrapper.call(arrayOf(instance, 1, "2")))
     }
