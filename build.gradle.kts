@@ -1,7 +1,7 @@
 plugins {
     id("maven")
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.4.21"
+    kotlin("jvm") version "1.4.21"
     id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
     id("jacoco")
 }
@@ -13,22 +13,11 @@ java {
     sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath(kotlin("gradle-plugin"))
-    }
-}
-
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation(kotlin("reflect"))
     // https://mvnrepository.com/artifact/org.jetbrains/annotations
     compileOnly(group = "org.jetbrains", name = "annotations", version = "20.1.0")
