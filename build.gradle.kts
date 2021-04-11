@@ -1,13 +1,13 @@
 plugins {
     id("maven")
     id("java")
-    kotlin("jvm") version "1.4.21"
-    id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
+    kotlin("jvm") version "1.4.32"
+    id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
     id("jacoco")
 }
 
 group = "com.mapk"
-version = "0.19"
+version = "0.20"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -23,11 +23,11 @@ dependencies {
     compileOnly(group = "org.jetbrains", name = "annotations", version = "20.1.0")
 
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter
-    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.7.0") {
+    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.7.1") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     // https://mvnrepository.com/artifact/io.mockk/mockk
-    testImplementation("io.mockk:mockk:1.10.3-jdk8")
+    testImplementation("io.mockk:mockk:1.11.0")
 }
 
 tasks {
